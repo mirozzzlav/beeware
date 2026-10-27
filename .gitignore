@@ -1,0 +1,19 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.idea/
+
+# Local environment variables
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Test coverage
+coverage/
