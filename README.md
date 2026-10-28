@@ -4,6 +4,18 @@ The project and interface use the name **WakeUp** from the `displayName` field i
 
 A Firefox extension built with React and TypeScript that asks, “You are about to visit Facebook. What are you going to do there?” before opening a monitored domain. The site name comes from the settings. By default, continuing requires an explanation of at least five words and the selected verification method: a six-digit code from an external authenticator app or a saved PIN entered on a shuffled keypad. You can customize or disable the question in settings. The other button closes the current tab.
 
+## Author and support
+
+Author: **Miro Furinda**. For support and bug reports, contact [info@mirofurinda.com](mailto:info@mirofurinda.com).
+
+When publishing on AMO, use **Miro Furinda** as the public author name and **info@mirofurinda.com** as the support email.
+
+## License
+
+WakeUp's original code is licensed under the [MIT License](LICENSE). Select MIT when publishing the extension on AMO. The build includes this license in the extension package, and the source archive includes it as well.
+
+Third-party dependencies retain their own licenses. The bundled DSEG font is licensed under SIL Open Font License 1.1; its notice is included in `public/licenses/DSEG-LICENSE.txt` and copied into the extension package.
+
 ## Build instructions for Mozilla reviewers
 
 Run all commands from the extracted source directory containing `package.json` and `package-lock.json`.

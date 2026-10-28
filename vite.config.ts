@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import designTokens from './design-tokens.plugin.ts'
@@ -38,6 +39,11 @@ export default defineConfig({
         )
       },
       generateBundle() {
+        this.emitFile({
+          type: 'asset',
+          fileName: 'LICENSE',
+          source: readFileSync(new URL('./LICENSE', import.meta.url), 'utf8'),
+        })
         this.emitFile({
           type: 'asset',
           fileName: 'manifest.json',

@@ -4,6 +4,14 @@
   "longName": "Wake Up Neo",
   "private": true,
   "version": "0.1.0",
+  "license": "MIT",
+  "author": {
+    "name": "Miro Furinda",
+    "email": "info@mirofurinda.com"
+  },
+  "bugs": {
+    "email": "info@mirofurinda.com"
+  },
   "type": "module",
   "engines": {
     "node": "24.x"

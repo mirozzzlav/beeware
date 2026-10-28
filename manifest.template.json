@@ -1,5 +1,8 @@
 {
   "manifest_version": 3,
+  "developer": {
+    "name": "Miro Furinda"
+  },
   "description": "Krátka pauza pred návštevou vybraných domén. Otvor stránku s jasným zámerom.",
   "permissions": [
     "storage",
