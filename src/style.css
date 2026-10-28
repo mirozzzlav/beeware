@@ -17,21 +17,6 @@ body {
   position: relative;
   isolation: isolate;
 }
-.matrix-background {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  user-select: none;
-  opacity: var(--opacity-matrix);
-  mask-image: radial-gradient(
-    ellipse at center,
-    var(--palette-transparent) 12%,
-    var(--palette-black) 80%
-  );
-}
 main {
   display: grid;
   place-items: center;

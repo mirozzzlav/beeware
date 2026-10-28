@@ -132,7 +132,7 @@ Use Node.js 24, as specified in `.nvmrc`, to run the TypeScript tests directly.
 - `src/TextField.tsx`, `src/Icon.tsx`, `src/ErrorMessage.tsx` — shared UI elements; fields automatically associate labels with unique input IDs.
 - `src/FormField.tsx`, `src/SelectField.tsx` — shared wrapper for labeled fields and a select field supporting native HTML attributes.
 - `src/FormActions.tsx` — cancel and submit buttons shared by both forms; accepts labels, icons, processing state and a form ID.
-- `src/MatrixBackground.tsx`, `src/matrix-animation.ts` — React wrapper and standalone canvas renderer with a cleanup function that stops animation and removes event listeners.
+- `src/components/MatrixBackground/MatrixBackground.tsx`, `src/components/MatrixBackground/MatrixBackground.css`, `src/components/MatrixBackground/matrix-animation.ts` — reusable background component, its styles and standalone canvas renderer; follows its container size and cleans up animation, resize observation and event listeners.
 - `src/settings-store.ts` — settings persistence.
 - `src/totp.ts` — key generation, provisioning URI and TOTP verification.
 - `src/TotpSetup.tsx` — QR code and text key in the settings.
@@ -147,6 +147,21 @@ Use Node.js 24, as specified in `.nvmrc`, to run the TypeScript tests directly.
 - `public/icon.svg` — standalone red-and-blue capsule icon, copied unchanged into the extension during builds.
 
 The extension identifier is generated as `@${name}.wondercules` from the `name` field in `package.json` and written to `browser_specific_settings.gecko.id`. Changing the technical package name changes the extension's identity in Firefox. Keep it unchanged after publication, including in subsequent versions.
+
+## Reusing the animated background
+
+Place `MatrixBackground` inside a parent with the `matrix-container` class. The parent determines its dimensions through its content or your own layout styles; the background fills that area behind the content and does not intercept clicks. It also inherits the parent's rounded corners.
+
+```tsx
+import MatrixBackground from './components/MatrixBackground/MatrixBackground'
+
+;<section className="matrix-container">
+  <MatrixBackground />
+  <MyComponent />
+</section>
+```
+
+The component imports its own CSS and uses the project's design tokens and bundled font. `ResizeObserver` keeps the canvas in sync when the container changes size. Each instance has its own animation state. The visit page places it directly inside `#root`, which already provides positioning and an isolated stacking context.
 
 ## Languages and translations
 

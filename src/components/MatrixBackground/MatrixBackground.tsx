@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { startMatrixAnimation } from './matrix-animation'
+import './MatrixBackground.css'
 
 export default function MatrixBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
