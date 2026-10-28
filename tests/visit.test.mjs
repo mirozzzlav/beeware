@@ -20,7 +20,8 @@ globalThis.browser = {
     remove: async (id) => removed.push(id),
   },
 }
-const { approveVisit, closeVisitTab } = await import('../src/visit.ts')
+const { approveVisit, closeVisitTab, leaveUntrackedPage } =
+  await import('../src/visit.ts')
 const request = {
   target: 'https://facebook.com/',
   reason: 'Chcem odpísať kamarátovi a dohodnúť stretnutie.',
@@ -57,4 +58,28 @@ test('closing removes only the current tab and rejects a missing tab', async () 
   tab = undefined
   await assert.rejects(closeVisitTab(), /Missing tab/)
   assert.deepEqual(removed, [7])
+})
+
+test('untracked pages resume the target and send invalid targets to settings', () => {
+  const destinations = []
+  globalThis.window = { location: { replace: (url) => destinations.push(url) } }
+  try {
+    leaveUntrackedPage('https://example.com/path?x=1#section')
+    for (const target of [
+      null,
+      '',
+      'invalid',
+      'javascript:alert(1)',
+      'file:///tmp/test',
+      'https://user:pass@example.com/',
+    ]) {
+      leaveUntrackedPage(target)
+    }
+    assert.deepEqual(destinations, [
+      'https://example.com/path?x=1#section',
+      ...Array(6).fill('./settings.html'),
+    ])
+  } finally {
+    delete globalThis.window
+  }
 })

@@ -1,4 +1,6 @@
+import { useEffect } from 'react'
 import { getProtectedSite } from './policy'
+import { leaveUntrackedPage } from './visit'
 import { isExtension } from './settings-store'
 import { useVisit } from './use-visit'
 import { useSites } from './use-sites'
@@ -33,6 +35,12 @@ export default function App() {
   } = useVisit(target, site, !isExtension || requestedTarget === null)
   const showVisitForm = !loadError && !!site && !finished
 
+  useEffect(() => {
+    if (sites && !loadError && !site) leaveUntrackedPage(requestedTarget)
+  }, [sites, loadError, site])
+
+  if (sites && !loadError && !site) return null
+
   return (
     <main>
       <Panel
@@ -63,12 +71,7 @@ export default function App() {
           <h1 id="question">{t('loadErrorTitle')}</h1>
         ) : !sites ? (
           <h1 id="question">{t('loading')}</h1>
-        ) : !site ? (
-          <>
-            <h1 id="question">{t('untrackedDomain')}</h1>
-            <a href="./settings.html">{t('openSettings')}</a>
-          </>
-        ) : finished ? (
+        ) : !site ? null : finished ? (
           <>
             <h1 id="question">
               {t('visitPreview', { site: site.name || site.domain })}

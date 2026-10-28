@@ -26,7 +26,7 @@ npm run build
 
 The first two commands should print `v24.19.0` and `11.17.0`. `npm ci` installs the exact dependency versions recorded in `package-lock.json`; keep the lockfile unchanged. Build tools are installed locally by npm; no global Vite or TypeScript installation is needed.
 
-`npm run build` runs TypeScript checking followed by a production Vite build. Vite clears the output directory, bundles the React application and background script, generates `manifest.json` from `manifest.template.json` and the metadata in `package.json`, and generates the icon and CSS variables through `design-tokens.plugin.ts` using `src/tokens.json`.
+`npm run build` runs TypeScript checking followed by a production Vite build. Vite clears the output directory, bundles the React application and background script, generates `manifest.json` from `manifest.template.json` and the metadata in `package.json`, copies the standalone extension icon from `public/icon.svg`, and generates CSS variables through `design-tokens.plugin.ts` using `src/tokens.json`.
 
 The complete installable extension is in `dist/`, with `manifest.json` directly inside it. Compare the contents of this directory with the submitted extension package. Do not edit generated files manually or use the development server to produce the submission.
 
@@ -50,7 +50,7 @@ For functional testing, follow the Firefox testing instructions below; the exten
 
 ### Source archive for AMO
 
-Submit a separate ZIP of the matching source tree, including this README, `package.json`, `package-lock.json`, `src/`, `manifest.template.json`, `scripts/`, `tests/`, HTML entry files, and all build, TypeScript, ESLint and formatting configuration files. Exclude `node_modules/`, `dist/`, `.git/`, IDE settings and generated release archives. Attach the matching source archive to each submitted version.
+Submit a separate ZIP of the matching source tree, including this README, `package.json`, `package-lock.json`, `src/`, `public/`, `manifest.template.json`, `scripts/`, `tests/`, HTML entry files, and all build, TypeScript, ESLint and formatting configuration files. Exclude `node_modules/`, `dist/`, `.git/`, IDE settings and generated release archives. Attach the matching source archive to each submitted version.
 
 Mozilla's [source code submission requirements](https://extensionworkshop.com/documentation/publish/source-code-submission/) explicitly recommend including build instructions in a README shipped with the sources.
 
@@ -133,6 +133,7 @@ Use Node.js 24, as specified in `.nvmrc`, to run the TypeScript tests directly.
 - `src/policy.ts` — domain validation, monitored domain selection and word counting.
 - `src/background.ts` — navigation interception and temporary approvals.
 - `manifest.template.json` — Firefox permissions and extension settings template; the build adds the name, version and identifier from `package.json`.
+- `public/icon.svg` — standalone red-and-blue capsule icon, copied unchanged into the extension during builds.
 
 The extension identifier is generated as `@${name}.wondercules` from the `name` field in `package.json` and written to `browser_specific_settings.gecko.id`. Changing the technical package name changes the extension's identity in Firefox. Keep it unchanged after publication, including in subsequent versions.
 
@@ -154,6 +155,6 @@ Base tokens (`palette-*`, `font-*`, `space-*` and `radius-*`) define the palette
 
 In CSS, use declarations such as `color: var(--color-text)` and `font-size: var(--font-size-small)`. For React styles, use the type-checked `tokenVar('color-action-success')` helper from `src/design-tokens.ts`; CSS variables also support theme overrides. For canvas, QR codes and other APIs that require concrete values, import base tokens from `tokens.json`, for example `tokens['palette-green-400']`. Semantic tokens contain CSS references, so do not pass them directly to these APIs.
 
-The Vite plugin in `design-tokens.plugin.ts` generates CSS variables and the extension icon from the tokens. The responsive `@media (--compact)` query uses the `breakpoint-compact` token. Do not edit generated values in `dist` manually.
+The Vite plugin in `design-tokens.plugin.ts` generates CSS variables from the tokens. The responsive `@media (--compact)` query uses the `breakpoint-compact` token. The standalone icon in `public/icon.svg` embeds its own colors and stroke widths so it can be opened or edited independently. Do not edit generated values in `dist` manually.
 
 `npm run lint` checks for hardcoded design values in React and TypeScript and verifies token usage in CSS. Run `npm run check:tokens` for the standalone CSS check; it also detects missing and circular token references. Structural values such as `0`, `100%`, SVG coordinates and inherited styles remain allowed.

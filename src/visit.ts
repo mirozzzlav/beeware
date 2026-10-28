@@ -12,6 +12,22 @@ interface ApprovalResponse {
   error?: string
 }
 
+export function leaveUntrackedPage(target: string | null): void {
+  let destination = './settings.html'
+  try {
+    const url = new URL(target ?? '')
+    if (
+      ['http:', 'https:'].includes(url.protocol) &&
+      !url.username &&
+      !url.password
+    )
+      destination = url.href
+  } catch {
+    // Missing or invalid targets return to settings.
+  }
+  window.location.replace(destination)
+}
+
 export async function approveVisit(
   request: VisitRequest,
   preview: boolean,
