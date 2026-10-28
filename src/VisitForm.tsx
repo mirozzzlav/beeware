@@ -1,13 +1,17 @@
 import type { FormEventHandler } from 'react'
 import { minimumWords, type DomainRule } from './policy'
-import TotpField from './TotpField'
+import { verificationUI } from './verification/ui'
+import type { VerificationMode } from './verification'
 import { useLanguage } from './use-language'
 
 type VisitFormProps = {
   id: string
+  mode: VerificationMode
   titleId: string
   site: DomainRule
   reason: string
+  visitQuestionEnabled: boolean
+  question: string
   code: string
   busy: boolean
   onReasonChange: (value: string) => void
@@ -17,9 +21,12 @@ type VisitFormProps = {
 
 export default function VisitForm({
   id,
+  mode,
   titleId,
   site,
   reason,
+  visitQuestionEnabled,
+  question,
   code,
   busy,
   onReasonChange,
@@ -27,29 +34,31 @@ export default function VisitForm({
   onSubmit,
 }: VisitFormProps) {
   const { t } = useLanguage()
+  const VerificationInput = verificationUI[mode].Input
   return (
     <form id={id} noValidate onSubmit={onSubmit}>
       <h1 id={titleId} className="visit-question">
         {t('visiting')} <strong>{site.name || site.domain}</strong>.
-        <br />
-        {t('visitQuestion')}
+        {visitQuestionEnabled && (
+          <>
+            <br />
+            {question}
+          </>
+        )}
       </h1>
-      <textarea
-        aria-label={t('visitQuestion')}
-        value={reason}
-        onChange={(event) => onReasonChange(event.target.value)}
-        placeholder={t('reasonPlaceholder', { count: minimumWords })}
-        rows={4}
-        maxLength={3000}
-        disabled={busy}
-        required
-      />
-      <TotpField
-        value={code}
-        onChange={onCodeChange}
-        disabled={busy}
-        required
-      />
+      {visitQuestionEnabled && (
+        <textarea
+          aria-label={question}
+          value={reason}
+          onChange={(event) => onReasonChange(event.target.value)}
+          placeholder={t('reasonPlaceholder', { count: minimumWords })}
+          rows={4}
+          maxLength={3000}
+          disabled={busy}
+          required
+        />
+      )}
+      <VerificationInput value={code} onChange={onCodeChange} disabled={busy} />
     </form>
   )
 }

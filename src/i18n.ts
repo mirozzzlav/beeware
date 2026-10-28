@@ -1,10 +1,11 @@
 import locales from './locales.json' with { type: 'json' }
 import { appName } from './app-info.ts'
+import { initialSettings } from './initial-settings.ts'
 
 export type Language = keyof typeof locales
 export type MessageKey = keyof typeof locales.sk.messages
 export type MessageParams = Record<string, string | number>
-export const defaultLanguage: Language = 'en'
+export const defaultLanguage: Language = initialSettings.language
 
 // All languages must provide the same keys. Adding a locale also adds its option.
 const dictionaries: Record<
@@ -16,7 +17,11 @@ export const languages = Object.entries(dictionaries)
     code: code as Language,
     name: locale.name,
   }))
-  .sort((a, b) => a.name.localeCompare(b.name, defaultLanguage))
+  .sort((a, b) => {
+    if (a.code === defaultLanguage) return -1
+    if (b.code === defaultLanguage) return 1
+    return a.name.localeCompare(b.name, defaultLanguage)
+  })
 
 export function normalizeLanguage(value: unknown): Language {
   return typeof value === 'string' && Object.hasOwn(dictionaries, value)

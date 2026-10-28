@@ -73,6 +73,7 @@ beforeEach(async () => {
   tabs.set(7, { id: 7, url: pageUrl })
   updates.length = 0
   localState.totpSecret = secret
+  localState.verification = { mode: 'totp' }
   code = await generateTotp(secret)
 })
 
@@ -106,6 +107,25 @@ test('rejects fewer than five words, even when called outside the UI', async () 
   assert.deepEqual(await request(), { redirectUrl: pageUrl })
   assert.equal(updates.length, 0)
 })
+
+test('disabling the question permits an empty answer and still requires verification', async () => {
+  localState.visitQuestionEnabled = false
+  assert.deepEqual(
+    await listeners.message.fn({ ...message(''), code: 'invalid' }, sender),
+    { ok: false, error: 'invalid-totp' },
+  )
+  assert.equal(updates.length, 0)
+  assert.deepEqual(await listeners.message.fn(message(''), sender), {
+    ok: true,
+  })
+  assert.deepEqual(await request(), {})
+  localState.visitQuestionEnabled = true
+  await listeners.storage.fn({ visitQuestionEnabled: {} }, 'local')
+  assert.deepEqual(await request(), { redirectUrl: pageUrl })
+  assert.deepEqual(await listeners.message.fn(message(''), sender), {
+    ok: false,
+  })
+})
 test('approval permits the site in this tab only and does not save the reason', async () => {
   assert.deepEqual(await listeners.message.fn(message(), sender), { ok: true })
   assert.deepEqual(updates, [{ id: 7, url: target }])
@@ -113,6 +133,7 @@ test('approval permits the site in this tab only and does not save the reason', 
   assert.deepEqual(await request(8), { redirectUrl: pageUrl })
   assert.deepEqual(state, { 'approved-domain:7': 'facebook.com' })
 })
+
 test('leaving the domain or closing the tab requires a new explanation', async () => {
   await listeners.message.fn(message(), sender)
   await listeners.committed.fn({
@@ -186,6 +207,42 @@ test('requires a valid OTP even with a valid explanation', async () => {
     assert.deepEqual(await request(), { redirectUrl: pageUrl })
   }
   assert.equal(updates.length, 0)
+})
+
+test('PIN mode rejects incorrect codes and approves the exact saved PIN including leading zeroes', async () => {
+  localState.verification = { mode: 'pin', pin: '01234' }
+  for (const invalid of [undefined, '', '1234', '00000', code]) {
+    assert.deepEqual(
+      await listeners.message.fn(
+        { ...message(), code: invalid, mode: 'totp' },
+        sender,
+      ),
+      {
+        ok: false,
+        error: 'invalid-pin',
+      },
+    )
+  }
+  assert.equal(updates.length, 0)
+  assert.deepEqual(
+    await listeners.message.fn({ ...message(), code: '01234' }, sender),
+    { ok: true },
+  )
+  assert.deepEqual(await request(), {})
+  await listeners.storage.fn({ verification: {} }, 'local')
+  assert.deepEqual(await request(), { redirectUrl: pageUrl })
+})
+
+test('fresh installations use the initial PIN while saved TOTP preferences remain active', async () => {
+  delete localState.verification
+  const { initialSettings } = await import('../src/initial-settings.ts')
+  assert.deepEqual(
+    await listeners.message.fn(
+      { ...message(), code: initialSettings.verification.methods.pin.pin },
+      sender,
+    ),
+    { ok: true },
+  )
 })
 
 test('initializes one persistent secret and exposes the same key to settings', async () => {

@@ -14,10 +14,52 @@ globalThis.browser = {
     },
   },
 }
-const { readSites, saveSites, ensureTotpSecret, readLanguage, saveLanguage } =
-  await import('../src/settings-store.ts')
+const {
+  readSites,
+  saveSites,
+  ensureTotpSecret,
+  readLanguage,
+  saveLanguage,
+  readVerification,
+  saveVerification,
+  readVisitQuestionEnabled,
+  saveVisitQuestionEnabled,
+  readVisitQuestionText,
+  saveVisitQuestionText,
+} = await import('../src/settings-store.ts')
 beforeEach(() => {
   data = {}
+})
+
+test('visit question defaults to enabled and preserves an explicit opt-out', async () => {
+  assert.equal(await readVisitQuestionEnabled(), true)
+  await saveVisitQuestionEnabled(false)
+  assert.equal(await readVisitQuestionEnabled(), false)
+  await saveLanguage('sk')
+  assert.equal(await readVisitQuestionEnabled(), false)
+  await saveVisitQuestionEnabled(true)
+  assert.equal(await readVisitQuestionEnabled(), true)
+  for (const invalid of [null, 'false', 0, {}]) {
+    data.visitQuestionEnabled = invalid
+    assert.equal(await readVisitQuestionEnabled(), true)
+  }
+})
+
+test('custom question persists independently of its switch and empty text restores the default', async () => {
+  assert.equal(await readVisitQuestionText(), null)
+  await saveVisitQuestionText('  Čo chceš dnes dosiahnuť?  ')
+  assert.equal(await readVisitQuestionText(), 'Čo chceš dnes dosiahnuť?')
+  await saveVisitQuestionEnabled(false)
+  assert.equal(await readVisitQuestionEnabled(), false)
+  assert.equal(await readVisitQuestionText(), 'Čo chceš dnes dosiahnuť?')
+  await saveVisitQuestionEnabled(true)
+  assert.equal(await readVisitQuestionText(), 'Čo chceš dnes dosiahnuť?')
+  await saveVisitQuestionText('   ')
+  assert.equal(await readVisitQuestionText(), null)
+  for (const invalid of [null, false, 123, {}]) {
+    data.visitQuestionText = invalid
+    assert.equal(await readVisitQuestionText(), null)
+  }
 })
 
 test('persists the selected language without changing domains or the authenticator key', async () => {
@@ -67,4 +109,33 @@ test('does not silently replace a damaged secret', async () => {
   data.totpSecret = 'broken'
   await assert.rejects(ensureTotpSecret())
   assert.equal(data.totpSecret, 'broken')
+})
+
+test('verification defaults to PIN and persists independent settings for each method', async () => {
+  const { initialSettings } = await import('../src/initial-settings.ts')
+  assert.deepEqual(await readVerification(), initialSettings.verification)
+  const expected = {
+    mode: 'pin',
+    methods: { totp: {}, pin: { pin: '001234' } },
+  }
+  await saveVerification(expected)
+  assert.deepEqual(await readVerification(), expected)
+  for (const pin of ['', '123', '1234567890123', 'abcd', '12 34']) {
+    await assert.rejects(
+      saveVerification({ mode: 'pin', methods: { pin: { pin } } }),
+    )
+  }
+  assert.deepEqual(await readVerification(), expected)
+  await saveVerification({ ...expected, mode: 'totp' })
+  assert.deepEqual(await readVerification(), { ...expected, mode: 'totp' })
+})
+
+test('old stored TOTP and PIN preferences take precedence over initial settings', async () => {
+  data.verification = { mode: 'totp', pin: '000123' }
+  assert.equal((await readVerification()).mode, 'totp')
+  data.verification = { mode: 'pin', pin: '000123' }
+  const migrated = await readVerification()
+  assert.equal(migrated.methods.pin.pin, '000123')
+  await saveVerification(migrated)
+  assert.deepEqual(data.verification, migrated)
 })

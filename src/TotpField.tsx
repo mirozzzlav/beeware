@@ -1,6 +1,7 @@
 import { useId, type ComponentProps } from 'react'
 import TotpInput from './TotpInput'
 import { useLanguage } from './use-language'
+import Block from './Block'
 
 type TotpFieldProps = Pick<
   ComponentProps<typeof TotpInput>,
@@ -12,13 +13,17 @@ export default function TotpField(props: TotpFieldProps) {
   const id = useId()
   const helpId = `${id}-help`
   return (
-    <div className="otp-block">
-      <label htmlFor={id}>{t('totpCode')}</label>
-      <p id={helpId}>{t('totpHelp')}</p>
+    <Block
+      className="otp-block"
+      padding="md"
+      title={<label htmlFor={id}>{t('totpCode')}</label>}
+      description={t('totpHelp')}
+      descriptionId={helpId}
+    >
       <TotpInput id={id} aria-describedby={helpId} {...props} />
       <a href="./settings.html" target="_blank" rel="noreferrer">
         {t('setupTotp')}
       </a>
-    </div>
+    </Block>
   )
 }

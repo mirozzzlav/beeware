@@ -7,15 +7,13 @@ import LanguageProvider from './LanguageProvider'
 import 'virtual:tokens.css'
 import './style.css'
 
+const isSettingsPage = window.location.pathname.endsWith('/settings.html')
+
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <MatrixBackground />
+    {!isSettingsPage && <MatrixBackground />}
     <LanguageProvider>
-      {window.location.pathname.endsWith('/settings.html') ? (
-        <Settings />
-      ) : (
-        <App />
-      )}
+      {isSettingsPage ? <Settings /> : <App />}
     </LanguageProvider>
   </React.StrictMode>,
 )

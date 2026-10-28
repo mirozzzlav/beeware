@@ -7,6 +7,7 @@ const messages = []
 const removed = []
 let tab = { id: 7 }
 let response = { ok: true }
+let verification
 globalThis.browser = {
   runtime: {
     id: 'extension@test',
@@ -19,6 +20,7 @@ globalThis.browser = {
     getCurrent: async () => tab,
     remove: async (id) => removed.push(id),
   },
+  storage: { local: { get: async (key) => ({ [key]: verification }) } },
 }
 const { approveVisit, closeVisitTab, leaveUntrackedPage } =
   await import('../src/visit.ts')
@@ -33,6 +35,7 @@ beforeEach(() => {
   removed.length = 0
   tab = { id: 7 }
   response = { ok: true }
+  verification = { mode: 'totp' }
 })
 
 test('extension approval forwards the current tab and preserves background errors', async () => {
@@ -50,6 +53,18 @@ test('preview checks TOTP locally without requesting a navigation', async () => 
   })
   assert.ok(messages.every((message) => message.type === 'get-totp-secret'))
   assert.deepEqual(removed, [])
+})
+
+test('PIN preview validates the saved PIN without requesting a TOTP secret', async () => {
+  verification = { mode: 'pin', pin: '01234' }
+  assert.deepEqual(await approveVisit({ ...request, code: '01234' }, true), {
+    ok: true,
+  })
+  assert.deepEqual(await approveVisit({ ...request, code: '1234' }, true), {
+    ok: false,
+    error: 'invalid-pin',
+  })
+  assert.deepEqual(messages, [])
 })
 
 test('closing removes only the current tab and rejects a missing tab', async () => {

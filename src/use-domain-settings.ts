@@ -9,10 +9,20 @@ import {
 import {
   isExtension,
   readSites,
-  readTotpSecret,
   saveSites,
   saveLanguage,
+  readVerification,
+  saveVerification,
+  readVisitQuestionEnabled,
+  saveVisitQuestionEnabled,
+  readVisitQuestionText,
+  saveVisitQuestionText,
 } from './settings-store'
+import { initialSettings } from './initial-settings'
+import {
+  normalizeVerification,
+  type VerificationSettings,
+} from './verification'
 import { closeVisitTab } from './visit'
 import { asMessageError, MessageError, type Language } from './i18n'
 import { useLanguage } from './use-language'
@@ -25,17 +35,34 @@ export function useDomainSettings() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<MessageError | null>(null)
   const [saved, setSaved] = useState(false)
-  const [secret, setSecret] = useState('')
+  const [visitQuestionText, setVisitQuestionText] = useState<string | null>(
+    null,
+  )
+  const [visitQuestionEnabled, setVisitQuestionEnabled] = useState(
+    initialSettings.visitQuestionEnabled,
+  )
+  const [verification, setVerification] = useState<VerificationSettings>(() =>
+    normalizeVerification(undefined),
+  )
   useEffect(() => {
     let active = true
-    void Promise.all([readSites(), readTotpSecret()])
-      .then(([sites, secret]) => {
-        if (active) {
-          setSecret(secret)
-          setRows(sites.map(createDraft))
-          setLoading(false)
-        }
-      })
+    void Promise.all([
+      readSites(),
+      readVerification(),
+      readVisitQuestionEnabled(),
+      readVisitQuestionText(),
+    ])
+      .then(
+        ([sites, verification, visitQuestionEnabled, visitQuestionText]) => {
+          if (active) {
+            setVisitQuestionText(visitQuestionText)
+            setVisitQuestionEnabled(visitQuestionEnabled)
+            setVerification(verification)
+            setRows(sites.map(createDraft))
+            setLoading(false)
+          }
+        },
+      )
       .catch(() => {
         if (active) {
           setError(new MessageError('loadError'))
@@ -62,7 +89,14 @@ export function useDomainSettings() {
     setError(null)
     setSaved(false)
     try {
+      if (
+        visitQuestionEnabled &&
+        visitQuestionText !== null &&
+        !visitQuestionText.trim()
+      )
+        throw new MessageError('visitQuestionRequired')
       const sites = normalizeDrafts(rows)
+      const normalizedVerification = normalizeVerification(verification)
       setBusy(true)
       // Request access directly from the submit gesture before any async work.
       if (isExtension && sites.length > 0) {
@@ -73,6 +107,10 @@ export function useDomainSettings() {
       }
       await saveSites(sites)
       await saveLanguage(language)
+      await saveVerification(normalizedVerification)
+      await saveVisitQuestionEnabled(visitQuestionEnabled)
+      await saveVisitQuestionText(visitQuestionText)
+      setVisitQuestionText(visitQuestionText?.trim() || null)
       setRows((previous) =>
         sites.map((site, index) => ({ ...previous[index], ...site })),
       )
@@ -122,6 +160,24 @@ export function useDomainSettings() {
     setError(null)
   }
 
+  function changeVerification(value: VerificationSettings) {
+    setVerification(value)
+    setSaved(false)
+    setError(null)
+  }
+
+  function changeVisitQuestionEnabled(value: boolean) {
+    setVisitQuestionEnabled(value)
+    setSaved(false)
+    setError(null)
+  }
+
+  function changeVisitQuestionText(value: string) {
+    setVisitQuestionText(value)
+    setSaved(false)
+    setError(null)
+  }
+
   return {
     rows,
     loading,
@@ -129,7 +185,12 @@ export function useDomainSettings() {
     busy,
     error: error ? t(error.key, error.params) : '',
     saved,
-    secret,
+    verification,
+    visitQuestionEnabled,
+    visitQuestionText,
+    changeVisitQuestionText,
+    changeVisitQuestionEnabled,
+    changeVerification,
     edit,
     add,
     remove,

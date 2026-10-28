@@ -4,8 +4,12 @@ import {
   readSites,
   sitesStorageKey,
   totpStorageKey,
+  readVerification,
+  verificationStorageKey,
+  readVisitQuestionEnabled,
+  visitQuestionStorageKey,
 } from './settings-store.ts'
-import { verifyTotp } from './totp.ts'
+import { verifyCode } from './verification.ts'
 
 const approvalKey = (tabId: number) => `approved-domain:${tabId}`
 const checkPage = browser.runtime.getURL('index.html')
@@ -62,15 +66,23 @@ browser.runtime.onMessage.addListener((message: ApprovalMessage, sender) => {
       sender.url?.split('?')[0] !== checkPage ||
       typeof message.tabId !== 'number' ||
       typeof message.target !== 'string' ||
-      typeof message.reason !== 'string' ||
+      typeof message.reason !== 'string'
+    )
+      return { ok: false }
+
+    if (
+      (await readVisitQuestionEnabled()) &&
       countWords(message.reason) < minimumWords
     )
       return { ok: false }
 
     const site = getProtectedSite(message.target, await readSites())
     if (!site) return { ok: false }
-    if (!(await verifyTotp(await ensureTotpSecret(), message.code)))
-      return { ok: false, error: 'invalid-totp' }
+    const verification = await readVerification()
+    const result = await verifyCode(verification, message.code, {
+      getTotpSecret: ensureTotpSecret,
+    })
+    if (!result.ok) return result
     const tab = await browser.tabs.get(message.tabId)
     const expectedPage = `${checkPage}?target=${encodeURIComponent(message.target)}`
     if (tab.url !== expectedPage) return { ok: false }
@@ -101,7 +113,10 @@ browser.runtime.onStartup.addListener(() => {
 browser.storage.onChanged.addListener((changes, area) => {
   if (
     area === 'local' &&
-    (sitesStorageKey in changes || totpStorageKey in changes)
+    (sitesStorageKey in changes ||
+      totpStorageKey in changes ||
+      verificationStorageKey in changes ||
+      visitQuestionStorageKey in changes)
   ) {
     void browser.storage.session.clear()
   }

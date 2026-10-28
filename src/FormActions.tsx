@@ -12,6 +12,7 @@ type FormActionsProps = {
   submitIcon?: ReactNode
   submitColor?: ComponentProps<typeof ActionButton>['color']
   submitAppearance?: ComponentProps<typeof ActionButton>['appearance']
+  submitFirst?: boolean
 }
 
 export default function FormActions({
@@ -25,28 +26,35 @@ export default function FormActions({
   submitIcon,
   submitColor,
   submitAppearance,
+  submitFirst = false,
 }: FormActionsProps) {
+  const cancelButton = (
+    <ActionButton
+      icon={cancelIcon}
+      onClick={() => {
+        void onCancel()
+      }}
+      disabled={busy}
+    >
+      {cancelLabel}
+    </ActionButton>
+  )
+  const submitButton = (
+    <ActionButton
+      icon={submitIcon}
+      color={submitColor}
+      appearance={submitAppearance}
+      type="submit"
+      form={form}
+      disabled={busy}
+    >
+      {busy ? busyLabel : submitLabel}
+    </ActionButton>
+  )
   return (
     <>
-      <ActionButton
-        icon={cancelIcon}
-        onClick={() => {
-          void onCancel()
-        }}
-        disabled={busy}
-      >
-        {cancelLabel}
-      </ActionButton>
-      <ActionButton
-        icon={submitIcon}
-        color={submitColor}
-        appearance={submitAppearance}
-        type="submit"
-        form={form}
-        disabled={busy}
-      >
-        {busy ? busyLabel : submitLabel}
-      </ActionButton>
+      {submitFirst ? submitButton : cancelButton}
+      {submitFirst ? cancelButton : submitButton}
     </>
   )
 }

@@ -1,5 +1,9 @@
-import { isExtension, readTotpSecret } from './settings-store.ts'
-import { verifyTotp } from './totp.ts'
+import {
+  isExtension,
+  readTotpSecret,
+  readVerification,
+} from './settings-store.ts'
+import { verifyCode } from './verification.ts'
 
 interface VisitRequest {
   target: string
@@ -33,9 +37,10 @@ export async function approveVisit(
   preview: boolean,
 ): Promise<ApprovalResponse> {
   if (preview) {
-    return (await verifyTotp(await readTotpSecret(), request.code))
-      ? { ok: true }
-      : { ok: false, error: 'invalid-totp' }
+    const verification = await readVerification()
+    return verifyCode(verification, request.code, {
+      getTotpSecret: readTotpSecret,
+    })
   }
   const tab = await browser.tabs.getCurrent()
   return browser.runtime.sendMessage({

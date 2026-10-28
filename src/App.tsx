@@ -1,6 +1,8 @@
 import { useEffect } from 'react'
 import { getProtectedSite } from './policy'
 import { leaveUntrackedPage } from './visit'
+import { useVerification } from './use-verification'
+import { useVisitQuestion } from './use-visit-question'
 import { isExtension } from './settings-store'
 import { useVisit } from './use-visit'
 import { useSites } from './use-sites'
@@ -17,7 +19,14 @@ const requestedTarget = new URLSearchParams(window.location.search).get(
 
 export default function App() {
   const { t } = useLanguage()
-  const { sites, error: loadError } = useSites()
+  const { sites, error: sitesError } = useSites()
+  const { mode, error: verificationError } = useVerification()
+  const {
+    enabled: visitQuestionEnabled,
+    question,
+    error: visitQuestionError,
+  } = useVisitQuestion()
+  const loadError = sitesError || verificationError || visitQuestionError
   const target =
     requestedTarget ?? (sites?.[0] ? `https://${sites[0].domain}/` : '')
   const site = sites ? getProtectedSite(target, sites) : undefined
@@ -32,8 +41,15 @@ export default function App() {
     continueToSite,
     reset,
     closeWindow,
-  } = useVisit(target, site, !isExtension || requestedTarget === null)
-  const showVisitForm = !loadError && !!site && !finished
+  } = useVisit(
+    target,
+    site,
+    !isExtension || requestedTarget === null,
+    mode,
+    visitQuestionEnabled,
+  )
+  const showVisitForm =
+    !loadError && !!site && !!mode && visitQuestionEnabled !== null && !finished
 
   useEffect(() => {
     if (sites && !loadError && !site) leaveUntrackedPage(requestedTarget)
@@ -47,7 +63,7 @@ export default function App() {
         aria-labelledby="question"
         error={loadError || (showVisitForm ? error : undefined)}
         actions={
-          !loadError && site ? (
+          !loadError && site && mode && visitQuestionEnabled !== null ? (
             finished ? (
               <ActionButton icon={<PillIcon color="blue" />} onClick={reset}>
                 {t('tryAgain')}
@@ -69,7 +85,7 @@ export default function App() {
       >
         {loadError ? (
           <h1 id="question">{t('loadErrorTitle')}</h1>
-        ) : !sites ? (
+        ) : !sites || !mode || visitQuestionEnabled === null ? (
           <h1 id="question">{t('loading')}</h1>
         ) : !site ? null : finished ? (
           <>
@@ -79,10 +95,14 @@ export default function App() {
           </>
         ) : (
           <VisitForm
+            key={mode}
+            mode={mode}
             id="visit-form"
             titleId="question"
             site={site}
             reason={reason}
+            visitQuestionEnabled={visitQuestionEnabled}
+            question={question}
             code={code}
             busy={busy}
             onReasonChange={changeReason}

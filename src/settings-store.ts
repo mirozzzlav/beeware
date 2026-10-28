@@ -1,7 +1,77 @@
 import { appSlug } from './app-info.ts'
+import { initialSettings } from './initial-settings.ts'
 import { normalizeRules, protectedSites, type DomainRule } from './policy.ts'
 import { generateTotpSecret } from './totp.ts'
 import { MessageError, normalizeLanguage, type Language } from './i18n.ts'
+import {
+  normalizeVerification,
+  type VerificationSettings,
+} from './verification.ts'
+
+export const verificationStorageKey = 'verification'
+
+export const visitQuestionStorageKey = 'visitQuestionEnabled'
+export const visitQuestionTextStorageKey = 'visitQuestionText'
+
+export async function readVisitQuestionText(): Promise<string | null> {
+  const value: unknown = isExtension
+    ? (await browser.storage.local.get(visitQuestionTextStorageKey))[
+        visitQuestionTextStorageKey
+      ]
+    : window.localStorage.getItem(visitQuestionTextStorageKey)
+  return typeof value === 'string' && value.trim() ? value.trim() : null
+}
+
+export async function saveVisitQuestionText(
+  value: string | null,
+): Promise<void> {
+  const text = value?.trim() || null
+  if (isExtension)
+    await browser.storage.local.set({ [visitQuestionTextStorageKey]: text })
+  else if (text === null)
+    window.localStorage.removeItem(visitQuestionTextStorageKey)
+  else window.localStorage.setItem(visitQuestionTextStorageKey, text)
+}
+
+export async function readVisitQuestionEnabled(): Promise<boolean> {
+  const value: unknown = isExtension
+    ? (await browser.storage.local.get(visitQuestionStorageKey))[
+        visitQuestionStorageKey
+      ]
+    : JSON.parse(window.localStorage.getItem(visitQuestionStorageKey) ?? 'null')
+  return typeof value === 'boolean'
+    ? value
+    : initialSettings.visitQuestionEnabled
+}
+
+export async function saveVisitQuestionEnabled(value: boolean): Promise<void> {
+  if (isExtension)
+    await browser.storage.local.set({ [visitQuestionStorageKey]: value })
+  else
+    window.localStorage.setItem(visitQuestionStorageKey, JSON.stringify(value))
+}
+
+export async function readVerification(): Promise<VerificationSettings> {
+  const value: unknown = isExtension
+    ? (await browser.storage.local.get(verificationStorageKey))[
+        verificationStorageKey
+      ]
+    : JSON.parse(window.localStorage.getItem(verificationStorageKey) ?? 'null')
+  return normalizeVerification(value)
+}
+
+export async function saveVerification(
+  value: VerificationSettings,
+): Promise<void> {
+  const normalized = normalizeVerification(value)
+  if (isExtension)
+    await browser.storage.local.set({ [verificationStorageKey]: normalized })
+  else
+    window.localStorage.setItem(
+      verificationStorageKey,
+      JSON.stringify(normalized),
+    )
+}
 
 export const languageStorageKey = 'language'
 

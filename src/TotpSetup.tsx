@@ -14,7 +14,7 @@ export default function TotpSetup({ secret }: { secret: string }) {
     let active = true
     void QRCode.toDataURL(totpUri(secret), {
       width: Number.parseInt(tokens['size-qr-code']),
-      margin: 4,
+      margin: 0,
       color: { dark: tokens['palette-black'], light: tokens['palette-white'] },
     })
       .then((url) => {
@@ -34,6 +34,7 @@ export default function TotpSetup({ secret }: { secret: string }) {
   return (
     <SettingsBlock
       className="totp-setup"
+      tone="surface"
       title={t('totpSetupLabel')}
       description={t('totpInstructions')}
     >

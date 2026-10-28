@@ -4,29 +4,36 @@ import { isExtension } from './settings-store'
 import { approveVisit, closeVisitTab } from './visit'
 import { MessageError } from './i18n'
 import { useLanguage } from './use-language'
+import {
+  verificationMethods,
+  verificationModes,
+  type VerificationMode,
+} from './verification'
 
 export function useVisit(
   target: string,
   site: DomainRule | undefined,
   preview: boolean,
+  mode: VerificationMode | null,
+  visitQuestionEnabled: boolean | null,
 ) {
   const { t } = useLanguage()
   const [reason, setReason] = useState('')
-  const [code, setCode] = useState('')
+  const [codeEntry, setCode] = useState({ mode, value: '' })
+  const code = codeEntry.mode === mode ? codeEntry.value : ''
   const [busy, setBusy] = useState(false)
   const [errors, setErrors] = useState<MessageError[]>([])
   const [finished, setFinished] = useState(false)
 
   async function continueToSite(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (busy || !site) return
+    if (busy || !site || !mode || visitQuestionEnabled === null) return
     const errors: MessageError[] = []
-    if (countWords(reason) < minimumWords) {
+    if (visitQuestionEnabled && countWords(reason) < minimumWords) {
       errors.push(new MessageError('reasonTooShort', { count: minimumWords }))
     }
-    if (!/^\d{6}$/.test(code)) {
-      errors.push(new MessageError('invalidTotpFormat'))
-    }
+    const inputError = verificationMethods[mode].validateInput(code)
+    if (inputError) errors.push(new MessageError(inputError))
     if (errors.length > 0) {
       setErrors(errors)
       return
@@ -35,8 +42,13 @@ export function useVisit(
     setErrors([])
     try {
       const response = await approveVisit({ target, reason, code }, preview)
-      if (response?.error === 'invalid-totp') {
-        setErrors([new MessageError('invalidTotp')])
+      const rejectedMethod = verificationModes.find(
+        (id) => verificationMethods[id].errorCode === response?.error,
+      )
+      if (rejectedMethod) {
+        setErrors([
+          new MessageError(verificationMethods[rejectedMethod].invalidCode),
+        ])
         return
       }
       if (!response?.ok) throw new Error('Approval failed')
@@ -50,7 +62,7 @@ export function useVisit(
 
   function reset() {
     setReason('')
-    setCode('')
+    setCode({ mode, value: '' })
     setFinished(false)
     setErrors([])
   }
@@ -75,7 +87,7 @@ export function useVisit(
   }
 
   function changeCode(value: string) {
-    setCode(value)
+    setCode({ mode, value })
     setErrors([])
   }
 
