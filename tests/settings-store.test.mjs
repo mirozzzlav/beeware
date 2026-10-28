@@ -1,13 +1,19 @@
 import assert from 'node:assert/strict'
 import { beforeEach, test } from 'node:test'
-import { defaultLanguage } from '../src/i18n.ts'
+import { defaultLanguage } from '../src/features/language/i18n.ts'
 
 let data = {}
+let reads = []
 globalThis.browser = {
   runtime: { id: 'extension@test' },
   storage: {
     local: {
-      get: async (key) => ({ [key]: data[key] }),
+      get: async (key) => {
+        reads.push(key)
+        return Object.fromEntries(
+          (Array.isArray(key) ? key : [key]).map((name) => [name, data[name]]),
+        )
+      },
       set: async (value) => {
         Object.assign(data, value)
       },
@@ -26,9 +32,43 @@ const {
   saveVisitQuestionEnabled,
   readVisitQuestionText,
   saveVisitQuestionText,
-} = await import('../src/settings-store.ts')
+  readVisitSettings,
+  visitSettingsStorageKeys,
+} = await import('../src/features/settings/settings-store.ts')
 beforeEach(() => {
   data = {}
+  reads = []
+})
+
+test('loads all visit preferences from one storage snapshot with shared defaults', async () => {
+  const snapshot = await readVisitSettings()
+  assert.deepEqual(reads, [visitSettingsStorageKeys])
+  assert.deepEqual(snapshot, {
+    sites: await readSites(),
+    verification: await readVerification(),
+    visitQuestionEnabled: await readVisitQuestionEnabled(),
+    visitQuestionText: await readVisitQuestionText(),
+  })
+})
+
+test('visit snapshot preserves empty domains, opt-out, custom text and verification errors', async () => {
+  data = {
+    domainRules: [],
+    visitQuestionEnabled: false,
+    visitQuestionText: '  Custom question?  ',
+    verification: {
+      mode: 'pin',
+      methods: { pin: { pin: '001234' }, totp: {} },
+    },
+  }
+  assert.deepEqual(await readVisitSettings(), {
+    sites: [],
+    verification: data.verification,
+    visitQuestionEnabled: false,
+    visitQuestionText: 'Custom question?',
+  })
+  data.verification = { mode: 'unknown' }
+  await assert.rejects(readVisitSettings(), { key: 'verificationLoadError' })
 })
 
 test('visit question defaults to enabled and preserves an explicit opt-out', async () => {
@@ -112,7 +152,8 @@ test('does not silently replace a damaged secret', async () => {
 })
 
 test('verification defaults to PIN and persists independent settings for each method', async () => {
-  const { initialSettings } = await import('../src/initial-settings.ts')
+  const { initialSettings } =
+    await import('../src/features/settings/initial-settings.ts')
   assert.deepEqual(await readVerification(), initialSettings.verification)
   const expected = {
     mode: 'pin',

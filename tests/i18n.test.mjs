@@ -7,11 +7,14 @@ import {
   MessageError,
   normalizeLanguage,
   translate,
-} from '../src/i18n.ts'
-import { normalizeRules } from '../src/policy.ts'
+} from '../src/features/language/i18n.ts'
+import { normalizeRules } from '../src/features/domains/policy.ts'
 
 const locales = JSON.parse(
-  readFileSync(new URL('../src/locales.json', import.meta.url), 'utf8'),
+  readFileSync(
+    new URL('../src/features/language/locales.json', import.meta.url),
+    'utf8',
+  ),
 )
 const placeholders = (message) =>
   [...message.matchAll(/\{(\w+)\}/g)].map((match) => match[1]).sort()

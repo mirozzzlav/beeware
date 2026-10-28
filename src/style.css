@@ -114,17 +114,9 @@ button {
   box-shadow: var(--shadow-control);
   cursor: pointer;
 }
-.primary {
-  background: var(--palette-blue-400);
-  color: var(--color-text-control);
-}
 .secondary {
   background: var(--color-surface);
   color: var(--color-text-control);
-}
-.primary:hover:not(:disabled) {
-  background: var(--palette-blue-500);
-  border-color: var(--color-border-control);
 }
 .secondary:hover:not(:disabled) {
   background: var(--color-secondary-hover);
@@ -473,9 +465,6 @@ a {
   }
   .domain-fields {
     width: 100%;
-  }
-  .language-field {
-    margin-bottom: var(--space-24);
   }
   .remove-domain {
     margin-top: 0;

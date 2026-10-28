@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { createDraft, editDraft, normalizeDrafts } from '../src/domain-draft.ts'
+import {
+  createDraft,
+  editDraft,
+  normalizeDrafts,
+} from '../src/features/domains/domain-draft.ts'
 
 test('suggested names follow domain edits while custom names are preserved', () => {
   const original = createDraft({ domain: 'facebook.com', name: 'Facebook' })

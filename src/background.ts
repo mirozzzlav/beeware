@@ -1,4 +1,8 @@
-import { countWords, getProtectedSite, minimumWords } from './policy.ts'
+import {
+  countWords,
+  getProtectedSite,
+  minimumWords,
+} from './features/domains/policy.ts'
 import {
   ensureTotpSecret,
   readSites,
@@ -8,8 +12,8 @@ import {
   verificationStorageKey,
   readVisitQuestionEnabled,
   visitQuestionStorageKey,
-} from './settings-store.ts'
-import { verifyCode } from './verification.ts'
+} from './features/settings/settings-store.ts'
+import { verifyCode } from './features/verification/verification.ts'
 
 const approvalKey = (tabId: number) => `approved-domain:${tabId}`
 const checkPage = browser.runtime.getURL('index.html')

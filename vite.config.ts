@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import designTokens from './design-tokens.plugin.ts'
 import manifest from './manifest.template.json' with { type: 'json' }
-import { defaultLanguage, translate } from './src/i18n.ts'
+import { defaultLanguage, translate } from './src/features/language/i18n.ts'
 import {
   appName,
   appLongName,

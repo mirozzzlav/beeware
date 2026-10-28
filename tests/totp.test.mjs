@@ -6,7 +6,7 @@ import {
   generateTotpSecret,
   totpUri,
   verifyTotp,
-} from '../src/totp.ts'
+} from '../src/features/verification/totp/totp.ts'
 
 // SHA-1 test vectors from RFC 6238, reduced to six digits.
 const secret = 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ'

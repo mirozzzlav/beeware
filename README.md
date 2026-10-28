@@ -116,32 +116,39 @@ Use Node.js 24, as specified in `.nvmrc`, to run the TypeScript tests directly.
 - `npm run lint:fix` — automatic lint fixes.
 - `npm run format` — formatting with Prettier.
 - `npm run format:check` — formatting checks.
-- `npm test` — domains, word counting, settings and automatic names, RFC 6238 TOTP test vectors, visit approval and background script behavior using simulated Firefox APIs.
+- `npm test` — domains, word counting, settings drafts and automatic names, combined visit settings reads, storage subscriptions (including concurrent reads and cleanup), RFC 6238 TOTP test vectors, visit approval and background script behavior using simulated Firefox APIs.
 - `npm run build` — type checking and production build.
 
 ## Project structure
 
-- `src/App.tsx` — visit prompt screen; `use-visit.ts` handles form state and submission.
-- `src/VisitForm.tsx`, `src/TotpField.tsx` — controlled visit form and reusable TOTP field with a label and unique IDs.
-- `src/visit.ts` — visit approval and tab closing in the extension and preview.
-- `src/Settings.tsx` — settings screen; `use-domain-settings.ts` handles loading, editing and saving.
-- `src/DomainRuleEditor.tsx` — standalone controlled editor for one domain and its site name.
-- `src/DomainRulesFieldset.tsx` — controlled list of domain editors with add, remove and shared `disabled` state; independent of persistence and the settings page.
-- `src/LanguageSettings.tsx` — language selection using the shared `SelectField`.
-- `src/domain-draft.ts` — draft settings rows, automatic names and conversion to saved rules.
-- `src/TextField.tsx`, `src/Icon.tsx`, `src/ErrorMessage.tsx` — shared UI elements; fields automatically associate labels with unique input IDs.
-- `src/FormField.tsx`, `src/SelectField.tsx` — shared wrapper for labeled fields and a select field supporting native HTML attributes.
-- `src/FormActions.tsx` — cancel and submit buttons shared by both forms; accepts labels, icons, processing state and a form ID.
+Shared UI lives in `src/components/`. Components with their own styles or assets, such as `MatrixBackground`, keep those files together in a dedicated folder. Application code is grouped in `src/features/` by domains, language, settings, verification and visits. Each feature keeps its UI, hooks and logic together. Entry points and shared design tokens remain at the `src/` root.
+
+- `src/features/visit/App.tsx` — loads the visit settings and handles redirects; `VisitPrompt.tsx` owns the ready prompt and uses `use-visit.ts` for form state and submission. Changing the destination or verification method resets the prompt, including its code, explanation, errors and preview result.
+- `src/features/visit/VisitForm.tsx`, `src/features/verification/totp/TotpField.tsx` — controlled visit form and reusable TOTP field with a label and unique IDs.
+- `src/features/visit/visit.ts` — visit approval and tab closing in the extension and preview.
+- `src/features/settings/Settings.tsx` — settings screen with one form around all tabs; `use-settings.ts` handles loading, permissions, persistence and feedback. Hidden tabs stay mounted to preserve drafts.
+- `src/features/settings/use-settings-draft.ts`, `src/features/settings/settings-draft.ts` — local draft values and a pure reducer for domains, language, verification and the question. `dirty` compares editable values with the last loaded or saved snapshot, ignoring domain row IDs. Reverting changes restores a clean draft. Revisions invalidate old feedback and prevent pending saves from overwriting newer edits. Language changes still preview immediately through the language provider; the form's selected language remains part of its local draft.
+- `src/features/settings/SettingsSection.tsx`, `src/features/settings/VisitQuestionSettings.tsx` — shared settings tab layout and controlled question settings.
+- `src/features/settings/observe-settings.ts`, `src/features/settings/use-stored-settings.ts` — shared storage subscriptions for the extension and preview. Only the latest read can publish a value or error, and cleanup ignores pending reads. Hook sources are declared at module scope so renders do not restart subscriptions. The language provider uses the observer directly to retain its editable language preview.
+- `src/features/visit/use-close-tab.ts` — shared tab closing and preview feedback with timer cleanup on unmount.
+- `src/features/domains/DomainRuleEditor.tsx` — standalone controlled editor for one domain and its site name.
+- `src/features/domains/DomainRulesFieldset.tsx` — controlled list of domain editors with add, remove and shared `disabled` state; independent of persistence and the settings page.
+- `src/features/settings/LanguageSettings.tsx` — language selection using the shared `SelectField`.
+- `src/features/domains/domain-draft.ts` — draft settings rows, automatic names and conversion to saved rules.
+- `src/components/TextField.tsx`, `src/components/Icon.tsx`, `src/components/ErrorMessage.tsx` — shared UI elements; fields automatically associate labels with unique input IDs.
+- `src/components/FormField.tsx`, `src/components/SelectField.tsx` — shared wrapper for labeled fields and a select field supporting native HTML attributes.
+- `src/components/FormActions.tsx` — cancel and submit buttons shared by both forms; accepts labels, icons, processing state and a form ID.
+- `src/components/FormFeedback.tsx` — shared error/success feedback with error priority and preserved alert/status roles.
 - `src/components/MatrixBackground/MatrixBackground.tsx`, `src/components/MatrixBackground/MatrixBackground.css`, `src/components/MatrixBackground/matrix-animation.ts` — reusable background component, its styles and standalone canvas renderer; follows its container size and cleans up animation, resize observation and event listeners.
-- `src/settings-store.ts` — settings persistence.
-- `src/totp.ts` — key generation, provisioning URI and TOTP verification.
-- `src/TotpSetup.tsx` — QR code and text key in the settings.
-- `src/PinKeypad.tsx`, `src/VerificationSettings.tsx`, `src/use-verification.ts` — shuffled PIN keypad, method selection and live mode updates.
-- `src/verification.ts`, `src/verification/` — core registry and individual verification modules; see [the extension guide](src/verification/README.md).
-- `src/initial-settings.ts` — initial language, verification method and per-method configuration.
-- `src/use-visit-question.ts` — saved question text, enabled state and live updates.
-- `src/Pill.tsx` — shared visual foundation for action buttons and status messages.
-- `src/policy.ts` — domain validation, monitored domain selection and word counting.
+- `src/features/settings/settings-store.ts` — settings persistence.
+- `src/features/verification/totp/totp.ts` — key generation, provisioning URI and TOTP verification.
+- `src/features/verification/totp/use-totp-setup.ts` — loads the shared secret and generates its QR code with cleanup on unmount. A QR failure preserves the manual key; a secret-loading failure prevents setup. `TotpSettings.tsx` and `TotpSetup.tsx` render the resulting loading, error and ready states.
+- `src/features/verification/pin/PinKeypad.tsx`, `src/features/verification/VerificationSettings.tsx` — shuffled PIN keypad and method selection.
+- `src/features/verification/verification.ts`, `src/features/verification/` — core registry and individual verification modules; see [the extension guide](src/features/verification/README.md).
+- `src/features/settings/initial-settings.ts` — initial language, verification method and per-method configuration.
+- `src/features/visit/use-visit-settings.ts` — one subscription for domains, verification and the visit question, with shared loading and error states. `readVisitSettings` reads these preferences together in one extension storage call, or synchronously from preview storage, before publishing the configuration. Default question text follows the current language without reloading storage.
+- `src/components/Pill.tsx` — shared visual foundation for action buttons and status messages.
+- `src/features/domains/policy.ts` — domain validation, monitored domain selection and word counting.
 - `src/background.ts` — navigation interception and temporary approvals.
 - `manifest.template.json` — Firefox permissions and extension settings template; the build adds the name, version and identifier from `package.json`.
 - `public/icon.svg` — standalone red-and-blue capsule icon, copied unchanged into the extension during builds.
@@ -165,11 +172,11 @@ The component imports its own CSS and uses the project's design tokens and bundl
 
 ## Languages and translations
 
-Text for the main application and settings, including validation messages, is stored in `src/locales.json`. Each language has a code, a display name (`name`) and a `messages` dictionary. The language list in settings is generated automatically from this file. To add a language, copy an existing entry under a new code and translate its values. Preserve the same keys and placeholders, such as `{count}`, `{site}` and `{domain}`. Tests check dictionary completeness and placeholders.
+Text for the main application and settings, including validation messages, is stored in `src/features/language/locales.json`. Each language has a code, a display name (`name`) and a `messages` dictionary. The language list in settings is generated automatically from this file. To add a language, copy an existing entry under a new code and translate its values. Preserve the same keys and placeholders, such as `{count}`, `{site}` and `{domain}`. Tests check dictionary completeness and placeholders.
 
 In components, use `const { t } = useLanguage()` and calls such as `t('saveSettings')` or `t('reasonTooShort', { count: 5 })`. Selecting a language immediately previews it in settings. Saving writes it to `browser.storage.local` in the extension or `localStorage` in the preview and updates other open application pages. English is the default language and is also used when the saved language is unknown or has been removed.
 
-Initial preferences are configured in `src/initial-settings.ts`: language, verification method (PIN) and per-method configuration (initial PIN `1234`). Saved user preferences take precedence. `defaultLanguage` in `src/i18n.ts` reads that shared initial language. Vite uses it to populate the `lang` attribute and translated title in both `index.html` and `settings.html` during development and production builds. Once the application loads, `LanguageProvider` uses a single `language` value: the user's saved supported language or the default. This value controls interface text, the document language and the page title.
+Initial preferences are configured in `src/features/settings/initial-settings.ts`: language, verification method (PIN) and per-method configuration (initial PIN `1234`). Saved user preferences take precedence. `defaultLanguage` in `src/features/language/i18n.ts` reads that shared initial language. Vite uses it to populate the `lang` attribute and translated title in both `index.html` and `settings.html` during development and production builds. Once the application loads, `LanguageProvider` uses a single `language` value: the user's saved supported language or the default. This value controls interface text, the document language and the page title.
 
 `Block` is the shared visual container used by settings and the main screen's PIN keypad and TOTP field. It provides a border, rounded corners, `tone="subtle"` (gray, default) or `tone="surface"` (white), and `padding="sm" | "md" | "lg"` (16, 20 or 24 px; default 24). Both `title` and `description` are optional; the block renders only the provided text and automatically connects it to accessibility labels. With neither provided it renders only the content. It also accepts normal div attributes, except the native tooltip `title`, which is used for the visible heading. Settings groups use `SettingsBlock`, a thin wrapper that delegates heading, description and styling to `Block`. The QR setup uses the surface tone; the PIN keypad uses small padding.
 
@@ -178,7 +185,7 @@ Initial preferences are configured in `src/initial-settings.ts`: language, verif
 Use the shared `Columns` and `Column` components for layouts with up to two equal columns. A plain `<Column>` occupies one column; `<Column span={2}>` spans both. A single one-column item is placed in the left column, leaving the right column empty. The layout stacks into one column when there is not enough room for two `size-column-min` widths plus the gap. All settings blocks occupy the left column, with language and question settings stacked vertically in General. This layout is independent of tabs and settings content.
 
 ```tsx
-import Columns, { Column } from './Columns'
+import Columns, { Column } from './components/Columns'
 
 ;<Columns>
   <Column>Left column</Column>

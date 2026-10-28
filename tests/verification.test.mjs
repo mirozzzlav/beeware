@@ -4,9 +4,9 @@ import {
   normalizeVerification,
   verifyCode,
   verificationMethods,
-} from '../src/verification.ts'
-import { shuffledDigits } from '../src/verification/pin.ts'
-import { initialSettings } from '../src/initial-settings.ts'
+} from '../src/features/verification/verification.ts'
+import { shuffledDigits } from '../src/features/verification/pin/pin.ts'
+import { initialSettings } from '../src/features/settings/initial-settings.ts'
 
 test('invalid saved verification settings cannot silently disable verification', () => {
   for (const value of [

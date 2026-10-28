@@ -5,7 +5,7 @@ import {
   getProtectedSite,
   normalizeDomain,
   normalizeRules,
-} from '../src/policy.ts'
+} from '../src/features/domains/policy.ts'
 
 test('counts Slovak words across whitespace and punctuation', () => {
   assert.equal(

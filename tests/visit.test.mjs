@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { beforeEach, test } from 'node:test'
-import { generateTotp } from '../src/totp.ts'
+import { generateTotp } from '../src/features/verification/totp/totp.ts'
 
 const secret = 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ'
 const messages = []
@@ -23,7 +23,7 @@ globalThis.browser = {
   storage: { local: { get: async (key) => ({ [key]: verification }) } },
 }
 const { approveVisit, closeVisitTab, leaveUntrackedPage } =
-  await import('../src/visit.ts')
+  await import('../src/features/visit/visit.ts')
 const request = {
   target: 'https://facebook.com/',
   reason: 'Chcem odpísať kamarátovi a dohodnúť stretnutie.',

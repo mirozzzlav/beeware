@@ -10,7 +10,8 @@ const checkPage = 'moz-extension://extension/index.html'
 const target = 'https://www.facebook.com/groups/example?tab=posts'
 const pageUrl = `${checkPage}?target=${encodeURIComponent(target)}`
 const secret = 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ'
-const { generateTotp } = await import('../src/totp.ts')
+const { generateTotp } =
+  await import('../src/features/verification/totp/totp.ts')
 let code
 const event = (name) => ({
   addListener: (fn, ...options) => {
@@ -235,7 +236,8 @@ test('PIN mode rejects incorrect codes and approves the exact saved PIN includin
 
 test('fresh installations use the initial PIN while saved TOTP preferences remain active', async () => {
   delete localState.verification
-  const { initialSettings } = await import('../src/initial-settings.ts')
+  const { initialSettings } =
+    await import('../src/features/settings/initial-settings.ts')
   assert.deepEqual(
     await listeners.message.fn(
       { ...message(), code: initialSettings.verification.methods.pin.pin },

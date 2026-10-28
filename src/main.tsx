@@ -1,9 +1,9 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import App from './App'
-import Settings from './Settings'
+import App from './features/visit/App'
+import Settings from './features/settings/Settings'
 import MatrixBackground from './components/MatrixBackground/MatrixBackground'
-import LanguageProvider from './LanguageProvider'
+import LanguageProvider from './features/language/LanguageProvider'
 import 'virtual:tokens.css'
 import './style.css'
 
