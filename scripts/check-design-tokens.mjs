@@ -15,6 +15,35 @@ const colorProperty =
   /^(?:color|background-color|fill|stroke|border(?:-(?:top|right|bottom|left))?-color|outline-color|caret-color|accent-color)$/
 const inheritedColor = /^(?:inherit|initial|unset|none|currentColor)$/
 
+export function checkTokenDefinitions(definitions) {
+  const failures = []
+  const visited = new Set()
+  const visiting = new Set()
+
+  function visit(name) {
+    if (!(name in definitions)) {
+      failures.push('Unknown token --' + name)
+      return
+    }
+    if (visiting.has(name)) {
+      failures.push('Circular token reference --' + name)
+      return
+    }
+    if (visited.has(name)) return
+    visiting.add(name)
+    for (const [, reference] of definitions[name].matchAll(
+      /var\(--([a-z0-9-]+)\)/g,
+    )) {
+      visit(reference)
+    }
+    visiting.delete(name)
+    visited.add(name)
+  }
+
+  for (const name of Object.keys(definitions)) visit(name)
+  return failures
+}
+
 export function checkStyles(source) {
   const failures = []
   const css = source.replace(/\/\*[\s\S]*?\*\//g, '')
@@ -73,7 +102,10 @@ if (
   process.argv[1] &&
   import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href
 ) {
-  const failures = scan(path.join(root, 'src'))
+  const failures = [
+    ...checkTokenDefinitions(tokens),
+    ...scan(path.join(root, 'src')),
+  ]
   if (failures.length) {
     console.error(failures.join('\n'))
     process.exitCode = 1

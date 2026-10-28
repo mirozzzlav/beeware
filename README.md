@@ -116,11 +116,17 @@ Použi Node.js 24 alebo novší, ktorý podporuje priame spúšťanie TypeScript
 ## Štruktúra
 
 - `src/App.tsx` — obrazovka s otázkou; stav a odoslanie formulára rieši `use-visit.ts`.
+- `src/VisitForm.tsx`, `src/TotpField.tsx` — riadený formulár návštevy a opakovane použiteľné TOTP pole s popisom a jedinečnými ID.
 - `src/visit.ts` — schválenie návštevy a zatvorenie panelu v rozšírení aj náhľade.
 - `src/Settings.tsx` — obrazovka nastavení; načítanie, úpravy a uloženie rieši `use-domain-settings.ts`.
 - `src/DomainRuleEditor.tsx` — samostatný riadený editor jednej domény a názvu aplikácie.
+- `src/DomainRulesFieldset.tsx` — riadený zoznam editorov domén s pridaním, odstránením a spoločným stavom `disabled`; nezávisí od ukladania ani stránky nastavení.
+- `src/LanguageSettings.tsx` — výber jazyka cez spoločný `SelectField`.
 - `src/domain-draft.ts` — pracovné riadky nastavení, automatické názvy a prevod na uložené pravidlá.
 - `src/TextField.tsx`, `src/Icon.tsx`, `src/ErrorMessage.tsx` — spoločné UI prvky; polia automaticky prepájajú label s jedinečným ID vstupu.
+- `src/FormField.tsx`, `src/SelectField.tsx` — spoločný obal označeného poľa a výberové pole s natívnymi HTML atribútmi.
+- `src/FormActions.tsx` — dvojica tlačidiel zrušenia a odoslania pre oba formuláre; prijíma texty, ikony, stav spracovania a ID formulára.
+- `src/MatrixBackground.tsx`, `src/matrix-animation.ts` — React obal a samostatný canvas renderer s funkciou na zastavenie animácie a odstránenie listenerov.
 - `src/settings-store.ts` — ukladanie nastavení.
 - `src/totp.ts` — generovanie kľúča, provisioning URI a overovanie TOTP.
 - `src/TotpSetup.tsx` — QR kód a textový kľúč v nastaveniach.
@@ -144,8 +150,10 @@ Jednotlivé skupiny nastavení používajú `SettingsBlock` so spoločným sivý
 
 Všetky farby, veľkosti a hrúbky písma, rodiny písma, riadkovanie, hrúbky okrajov a ikon, zaoblenia, rozostupy a tiene sú definované v `src/tokens.json`. Nové vizuálne hodnoty pridávaj do tohto súboru; v komponentoch ani štýloch nezadávaj priame hodnoty.
 
-V CSS použi napríklad `color: var(--palette-gray-900)` a `font-size: var(--font-size-small)`. V TypeScripte importuj `tokens` zo súboru `tokens.json` a použi napríklad `tokens['palette-green-400']`. To isté platí pre SVG ikony aj vykresľovanie Matrix pozadia do canvasu.
+Základné tokeny `palette-*`, `font-*`, `space-*` a `radius-*` definujú paletu a stupnice. Významové tokeny `color-*` na ne odkazujú podľa použitia: napríklad `color-text`, `color-surface`, `color-border-control` alebo `color-error-text`. Spoločné okraje a focus používajú `border-control`, `border-button`, `border-divider` a `outline-focus`. Zmena jednej definície sa tak prejaví vo všetkých príslušných komponentoch.
+
+V CSS použi napríklad `color: var(--color-text)` a `font-size: var(--font-size-small)`. Pre React štýly použi typovo kontrolované `tokenVar('color-action-success')` z `src/design-tokens.ts`; CSS premenné umožnia aj prepísanie témy. Pre canvas, QR kód a iné API vyžadujúce konkrétne hodnoty importuj základné tokeny z `tokens.json`, napríklad `tokens['palette-green-400']`. Významové tokeny obsahujú CSS odkazy, preto ich takým API neposielaj priamo.
 
 Vite plugin `design-tokens.plugin.ts` vytvorí z tokenov CSS premenné a ikonu rozšírenia. Responzívny variant `@media (--compact)` používa hodnotu `breakpoint-compact` z tokenov. Vygenerované hodnoty v `dist` neupravuj ručne.
 
-`npm run lint` kontroluje priame dizajnové hodnoty v Reacte a TypeScripte aj používanie tokenov v CSS. Samostatnú kontrolu CSS spustíš cez `npm run check:tokens`. Štrukturálne hodnoty ako `0`, `100%`, súradnice SVG a dedenie štýlov zostávajú povolené.
+`npm run lint` kontroluje priame dizajnové hodnoty v Reacte a TypeScripte aj používanie tokenov v CSS. Samostatnú kontrolu CSS spustíš cez `npm run check:tokens`; overuje aj chýbajúce a cyklické odkazy medzi tokenmi. Štrukturálne hodnoty ako `0`, `100%`, súradnice SVG a dedenie štýlov zostávajú povolené.

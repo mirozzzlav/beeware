@@ -1,8 +1,8 @@
 import type { ComponentProps, ReactNode } from 'react'
-import tokens from './tokens.json'
+import { tokenVar, type ColorToken } from './design-tokens'
 
 type ActionButtonProps = Omit<ComponentProps<'button'>, 'color'> & {
-  color?: Extract<keyof typeof tokens, `palette-${string}`>
+  color?: ColorToken
   icon?: ReactNode
   appearance?: 'outline' | 'filled'
 }
@@ -27,13 +27,15 @@ export default function ActionButton({
         ...style,
         ...(color && {
           color:
-            appearance === 'filled' ? tokens['palette-white'] : tokens[color],
-          borderColor: tokens[color],
-          outlineColor: tokens[color],
+            appearance === 'filled'
+              ? tokenVar('color-text-inverse')
+              : tokenVar(color),
+          borderColor: tokenVar(color),
+          outlineColor: tokenVar(color),
         }),
         ...(appearance === 'filled' && {
-          backgroundColor: tokens[color ?? 'palette-blue-700'],
-          color: tokens['palette-white'],
+          backgroundColor: tokenVar(color ?? 'color-action-primary'),
+          color: tokenVar('color-text-inverse'),
         }),
       }}
     >

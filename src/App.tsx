@@ -1,10 +1,11 @@
-import { getProtectedSite, minimumWords } from './policy'
+import { getProtectedSite } from './policy'
 import { isExtension } from './settings-store'
 import { useVisit } from './use-visit'
 import { useSites } from './use-sites'
 import ActionButton from './ActionButton'
 import PillIcon from './PillIcon'
-import TotpInput from './TotpInput'
+import VisitForm from './VisitForm'
+import FormActions from './FormActions'
 import Panel from './Panel'
 import { useLanguage } from './use-language'
 
@@ -44,25 +45,16 @@ export default function App() {
                 {t('tryAgain')}
               </ActionButton>
             ) : (
-              <>
-                <ActionButton
-                  icon={<PillIcon color="red" />}
-                  onClick={() => {
-                    void closeWindow()
-                  }}
-                  disabled={busy}
-                >
-                  {t('closeWindow')}
-                </ActionButton>
-                <ActionButton
-                  icon={<PillIcon color="blue" />}
-                  type="submit"
-                  form="visit-form"
-                  disabled={busy}
-                >
-                  {busy ? t('opening') : t('continue')}
-                </ActionButton>
-              </>
+              <FormActions
+                form="visit-form"
+                busy={busy}
+                onCancel={closeWindow}
+                cancelLabel={t('closeWindow')}
+                submitLabel={t('continue')}
+                busyLabel={t('opening')}
+                cancelIcon={<PillIcon color="red" />}
+                submitIcon={<PillIcon color="blue" />}
+              />
             )
           ) : undefined
         }
@@ -83,46 +75,19 @@ export default function App() {
             </h1>
           </>
         ) : (
-          <form
+          <VisitForm
             id="visit-form"
-            noValidate
+            titleId="question"
+            site={site}
+            reason={reason}
+            code={code}
+            busy={busy}
+            onReasonChange={changeReason}
+            onCodeChange={changeCode}
             onSubmit={(event) => {
               void continueToSite(event)
             }}
-          >
-            <h1 id="question" className="visit-question">
-              {t('visiting')} <strong>{site.name || site.domain}</strong>.
-              <br />
-              {t('visitQuestion')}
-            </h1>
-            <textarea
-              aria-label={t('visitQuestion')}
-              value={reason}
-              onChange={(event) => {
-                changeReason(event.target.value)
-              }}
-              placeholder={t('reasonPlaceholder', { count: minimumWords })}
-              rows={4}
-              maxLength={3000}
-              disabled={busy}
-              required
-            />
-            <div className="otp-block">
-              <label htmlFor="totp-code">{t('totpCode')}</label>
-              <p id="totp-help">{t('totpHelp')}</p>
-              <TotpInput
-                id="totp-code"
-                aria-describedby="totp-help"
-                value={code}
-                onChange={changeCode}
-                disabled={busy}
-                required
-              />
-              <a href="./settings.html" target="_blank" rel="noreferrer">
-                {t('setupTotp')}
-              </a>
-            </div>
-          </form>
+          />
         )}
       </Panel>
     </main>

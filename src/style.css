@@ -2,8 +2,8 @@
   font-family: var(--font-family-sans);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-regular);
-  color: var(--palette-gray-900);
-  background: var(--palette-matrix-background);
+  color: var(--color-text);
+  background: var(--color-page);
   font-synthesis: none;
 }
 * {
@@ -38,13 +38,13 @@ main {
   min-height: var(--size-page-min-height);
   padding: var(--space-24);
 }
-section {
+.panel {
   width: 100%;
   max-width: var(--size-card);
   padding: var(--space-36);
-  border: var(--border-width-thin) solid var(--palette-green-100);
+  border: var(--border-panel);
   border-radius: var(--radius-card);
-  background: var(--palette-white);
+  background: var(--color-surface);
   box-shadow: var(--shadow-card);
 }
 h1 {
@@ -71,19 +71,19 @@ textarea {
   width: 100%;
   min-height: var(--size-textarea);
   resize: none;
-  border: var(--border-width-thin) solid var(--palette-gray-400);
+  border: var(--border-control);
   border-radius: var(--radius-input);
-  background: var(--palette-white);
+  background: var(--color-surface);
   padding: var(--space-16);
   color: inherit;
   line-height: var(--line-height-body);
 }
 textarea::placeholder {
-  color: var(--palette-slate-500);
+  color: var(--color-text-placeholder);
 }
 textarea:focus-visible,
 button:focus-visible {
-  outline: var(--border-width-focus) solid var(--palette-blue-600);
+  outline: var(--outline-focus);
   outline-offset: var(--border-width-focus);
 }
 .action-button {
@@ -93,8 +93,8 @@ button:focus-visible {
   gap: var(--space-4);
   padding: var(--space-5) var(--space-12);
   font-size: var(--font-size-small);
-  background: var(--palette-white);
-  color: var(--palette-black);
+  background: var(--color-surface);
+  color: var(--color-text-control);
 }
 .action-button-icon {
   display: inline-flex;
@@ -112,35 +112,35 @@ button:focus-visible {
 button {
   font-weight: var(--font-weight-semibold);
   padding: var(--space-12) var(--space-20);
-  border: var(--border-width-thin) solid var(--palette-gray-300);
+  border: var(--border-button);
   border-radius: var(--radius-pill);
   box-shadow: var(--shadow-control);
   cursor: pointer;
 }
 .primary {
   background: var(--palette-blue-400);
-  color: var(--palette-black);
+  color: var(--color-text-control);
 }
 .secondary {
-  background: var(--palette-white);
-  color: var(--palette-black);
+  background: var(--color-surface);
+  color: var(--color-text-control);
 }
 .primary:hover:not(:disabled) {
   background: var(--palette-blue-500);
-  border-color: var(--palette-gray-400);
+  border-color: var(--color-border-control);
 }
 .secondary:hover:not(:disabled) {
-  background: var(--palette-green-50);
-  border-color: var(--palette-gray-400);
+  background: var(--color-secondary-hover);
+  border-color: var(--color-border-control);
 }
 button:disabled {
   opacity: var(--opacity-disabled);
-  border-color: var(--palette-gray-300);
-  color: var(--palette-black);
+  border-color: var(--color-border-button);
+  color: var(--color-text-control);
   cursor: not-allowed;
 }
 .action-button:hover:not(:disabled) {
-  background: var(--palette-slate-100);
+  background: var(--color-control-hover);
 }
 .action-button[data-appearance='filled']:hover:not(:disabled) {
   opacity: var(--opacity-control-hover);
@@ -163,12 +163,12 @@ button:disabled {
   text-align: left;
 }
 .message-error {
-  background: var(--palette-red-50);
-  color: var(--palette-red-800);
+  background: var(--color-error-surface);
+  color: var(--color-error-text);
 }
 .message-success {
-  background: var(--palette-green-50);
-  color: var(--palette-green-800);
+  background: var(--color-success-surface);
+  color: var(--color-success-text);
 }
 .message-icon {
   flex-shrink: 0;
@@ -181,7 +181,7 @@ button:disabled {
 .settings-panel {
   max-width: var(--size-settings);
 }
-.settings-panel fieldset {
+.domain-rules {
   border: 0;
   padding: 0;
   margin: 0;
@@ -193,9 +193,9 @@ button:disabled {
   gap: var(--space-12);
   padding: var(--space-12);
   margin-bottom: var(--space-8);
-  border: var(--border-width-thin) solid var(--palette-gray-200);
+  border: var(--border-divider);
   border-radius: var(--radius-row);
-  background: var(--palette-white);
+  background: var(--color-surface);
 }
 .domain-fields {
   flex: 1;
@@ -213,13 +213,16 @@ button:disabled {
   font-weight: var(--font-weight-semibold);
   margin-bottom: var(--space-6);
 }
+.text-field label.sr-only {
+  margin: calc(-1 * var(--size-pixel));
+}
 .text-field input,
 .text-field select {
   width: 100%;
   padding: var(--space-12);
-  border: var(--border-width-thin) solid var(--palette-gray-400);
+  border: var(--border-control);
   border-radius: var(--radius-pill);
-  background: var(--palette-white);
+  background: var(--color-surface);
   color: inherit;
   font: inherit;
   margin-bottom: 0;
@@ -227,7 +230,7 @@ button:disabled {
 .text-field input:focus-visible,
 .text-field select:focus-visible,
 a:focus-visible {
-  outline: var(--border-width-focus) solid var(--palette-blue-600);
+  outline: var(--outline-focus);
   outline-offset: var(--border-width-focus);
 }
 .select-control {
@@ -271,9 +274,9 @@ a:focus-visible {
 .panel-footer {
   margin: var(--space-24) calc(-1 * var(--space-36)) calc(-1 * var(--space-36));
   padding: var(--space-20) var(--space-36);
-  border-top: var(--border-width-thin) solid var(--palette-gray-200);
+  border-top: var(--border-divider);
   border-radius: 0 0 var(--radius-card) var(--radius-card);
-  background: var(--palette-slate-50);
+  background: var(--color-surface-subtle);
 }
 .panel-footer p {
   margin-bottom: 0;
@@ -286,10 +289,10 @@ a:focus-visible {
   justify-content: flex-end;
 }
 a {
-  color: var(--palette-blue-700);
+  color: var(--color-link);
 }
 .empty-state {
-  color: var(--palette-slate-600);
+  color: var(--color-text-muted);
 }
 .sr-only {
   position: absolute;
@@ -306,7 +309,7 @@ a {
   main {
     padding: var(--space-16);
   }
-  section {
+  .panel {
     padding: var(--space-24);
     border-radius: var(--radius-card-compact);
   }
@@ -352,9 +355,9 @@ a {
 .settings-block {
   margin-bottom: var(--space-28);
   padding: var(--space-20);
-  border: var(--border-width-thin) solid var(--palette-gray-200);
+  border: var(--border-divider);
   border-radius: var(--radius-row);
-  background: var(--palette-slate-50);
+  background: var(--color-surface-subtle);
 }
 .visit-question + textarea {
   margin-bottom: var(--space-28);
@@ -393,15 +396,15 @@ a {
   flex: 1;
   min-width: 0;
   height: var(--size-otp-slot);
-  border: var(--border-width-thin) solid var(--palette-gray-400);
+  border: var(--border-control);
   border-radius: var(--radius-input);
-  background: var(--palette-white);
+  background: var(--color-surface);
   font-family: var(--font-family-mono);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-semibold);
 }
 .totp-input-slot.is-active {
-  outline: var(--border-width-focus) solid var(--palette-blue-600);
+  outline: var(--outline-focus);
   outline-offset: var(--border-width-thin);
 }
 .totp-input:has(input:disabled) {

@@ -20,7 +20,10 @@ export default function Panel({
   'aria-labelledby': labelledBy,
 }: PanelProps) {
   return (
-    <section className={className} aria-labelledby={labelledBy}>
+    <section
+      className={`panel ${className ?? ''}`.trim()}
+      aria-labelledby={labelledBy}
+    >
       {children}
       {(error || actions || status) && (
         <footer className="panel-footer">

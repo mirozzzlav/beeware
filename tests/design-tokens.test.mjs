@@ -1,8 +1,33 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { Linter } from 'eslint'
-import { checkStyles } from '../scripts/check-design-tokens.mjs'
+import {
+  checkStyles,
+  checkTokenDefinitions,
+} from '../scripts/check-design-tokens.mjs'
 import { designTokenRules } from '../scripts/design-token-rules.mjs'
+
+test('semantic tokens support shared references and composite borders', () => {
+  assert.deepEqual(
+    checkTokenDefinitions({
+      'palette-black': '#000000',
+      'color-text': 'var(--palette-black)',
+      'border-width-thin': '1px',
+      'border-control': 'var(--border-width-thin) solid var(--color-text)',
+    }),
+    [],
+  )
+})
+
+test('token references reject missing values and cycles', () => {
+  for (const definitions of [
+    { a: 'var(--missing)' },
+    { a: 'var(--a)' },
+    { a: 'var(--b)', b: 'var(--c)', c: 'var(--a)' },
+  ]) {
+    assert.ok(checkTokenDefinitions(definitions).length)
+  }
+})
 
 test('CSS rejects values outside the palette and typography scale', () => {
   for (const declaration of [

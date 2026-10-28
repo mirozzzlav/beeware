@@ -1,10 +1,10 @@
 import { useDomainSettings } from './use-domain-settings'
-import DomainRuleEditor from './DomainRuleEditor'
+import DomainRulesFieldset from './DomainRulesFieldset'
 import TotpSetup from './TotpSetup'
 import Panel from './Panel'
 import Icon from './Icon'
-import ActionButton from './ActionButton'
-import { languages, normalizeLanguage } from './i18n'
+import FormActions from './FormActions'
+import LanguageSettings from './LanguageSettings'
 import { useLanguage } from './use-language'
 import SettingsBlock from './SettingsBlock'
 
@@ -34,27 +34,18 @@ export default function Settings() {
         error={error}
         actions={
           !loadFailed && !loading ? (
-            <>
-              <ActionButton
-                icon={<Icon name="close" />}
-                onClick={() => {
-                  void closeWindow()
-                }}
-                disabled={busy}
-              >
-                {t('cancel')}
-              </ActionButton>
-              <ActionButton
-                icon={<Icon name="submit" />}
-                color="palette-green-700"
-                appearance="filled"
-                type="submit"
-                form="settings-form"
-                disabled={busy}
-              >
-                {busy ? t('saving') : t('saveSettings')}
-              </ActionButton>
-            </>
+            <FormActions
+              form="settings-form"
+              busy={busy}
+              onCancel={closeWindow}
+              cancelLabel={t('cancel')}
+              submitLabel={t('saveSettings')}
+              busyLabel={t('saving')}
+              cancelIcon={<Icon name="close" />}
+              submitIcon={<Icon name="submit" />}
+              submitColor="color-action-success"
+              submitAppearance="filled"
+            />
           ) : undefined
         }
         status={saved ? t('settingsSaved') : undefined}
@@ -64,33 +55,11 @@ export default function Settings() {
           <p role="status">{t('loading')}</p>
         ) : !loadFailed ? (
           <>
-            <SettingsBlock
-              title={t('language')}
-              description={t('languageHelp')}
-            >
-              <div className="text-field">
-                <label className="sr-only" htmlFor="language">
-                  {t('language')}
-                </label>
-                <div className="select-control">
-                  <select
-                    id="language"
-                    value={language}
-                    disabled={busy}
-                    onChange={(event) =>
-                      changeLanguage(normalizeLanguage(event.target.value))
-                    }
-                  >
-                    {languages.map((option) => (
-                      <option key={option.code} value={option.code}>
-                        {option.name}
-                      </option>
-                    ))}
-                  </select>
-                  <Icon name="chevronDown" className="select-control-icon" />
-                </div>
-              </div>
-            </SettingsBlock>
+            <LanguageSettings
+              value={language}
+              disabled={busy}
+              onChange={changeLanguage}
+            />
             <TotpSetup secret={secret} />
             <SettingsBlock
               title={t('monitoredDomains')}
@@ -103,28 +72,13 @@ export default function Settings() {
                   void save(event)
                 }}
               >
-                <fieldset disabled={busy}>
-                  <legend className="sr-only">{t('monitoredDomains')}</legend>
-                  {rows.length === 0 && (
-                    <p className="empty-state">{t('noDomains')}</p>
-                  )}
-                  {rows.map((row) => (
-                    <DomainRuleEditor
-                      key={row.id}
-                      rule={row}
-                      onChange={(field, value) => edit(row.id, field, value)}
-                      onRemove={() => remove(row.id)}
-                    />
-                  ))}
-                  <button
-                    className="secondary add-domain"
-                    type="button"
-                    onClick={add}
-                  >
-                    <Icon name="plus" className="settings-add-icon" />
-                    {t('addDomain')}
-                  </button>
-                </fieldset>
+                <DomainRulesFieldset
+                  rows={rows}
+                  disabled={busy}
+                  onChange={edit}
+                  onAdd={add}
+                  onRemove={remove}
+                />
               </form>
             </SettingsBlock>
           </>
