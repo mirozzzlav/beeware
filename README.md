@@ -1,8 +1,8 @@
 # WakeUp
 
-Projekt a rozhranie používajú názov **WakeUp** z poľa `displayName` v `package.json`. Dlhý názov pluginu **Wake Up Neo** je v poli `longName` a build ho zapíše do `name` vo výslednom `dist/manifest.json`. `src/app-info.ts` sprístupňuje názvy aplikácii aj buildu. Technický názov `name` a verzia sa tiež čítajú z `package.json`.
+The project and interface use the name **WakeUp** from the `displayName` field in `package.json`. The full extension name, **Wake Up Neo**, is stored in `longName` and written to the `name` field in the generated `dist/manifest.json`. `src/app-info.ts` exposes these names to the application and build process. The technical package name (`name`) and version are also read from `package.json`.
 
-Firefox rozšírenie s Reactom a TypeScriptom, ktoré pred návštevou vybranej domény zobrazí TOTP blok a otázku „Práve ideš navštíviť Facebook. Čo sa tam chystáš robiť?“. Názov aplikácie sa dosadí z nastavení. Pokračovanie vyžaduje správny šesťmiestny kód z externej TOTP aplikácie a vysvetlenie aspoň piatimi slovami; druhé tlačidlo zavrie aktuálny panel.
+A Firefox extension built with React and TypeScript that displays a TOTP verification field and asks, “You are about to visit Facebook. What are you going to do there?” before opening a monitored domain. The site name comes from the settings. Continuing requires a valid six-digit code from an external authenticator app and an explanation of at least five words. The other button closes the current tab.
 
 ## Build instructions for Mozilla reviewers
 
@@ -54,106 +54,106 @@ Submit a separate ZIP of the matching source tree, including this README, `packa
 
 Mozilla's [source code submission requirements](https://extensionworkshop.com/documentation/publish/source-code-submission/) explicitly recommend including build instructions in a README shipped with the sources.
 
-## Náhľad na localhoste
+## Local preview
 
-Projekt používa Node.js 24; testy priamo importujú TypeScript súbory a na Node.js 20 sa nespustia. Verzia pre vývoj je uložená v `.nvmrc`. Ak používaš [nvm](https://github.com/nvm-sh/nvm), v koreňovom adresári projektu spusti:
+The project uses Node.js 24. Tests import TypeScript files directly and do not run on Node.js 20. The development version is recorded in `.nvmrc`. If you use [nvm](https://github.com/nvm-sh/nvm), run the following commands from the project root:
 
 ```sh
 nvm install
 nvm use
 ```
 
-V PyCharme vyber rovnaký Node.js 24 interpreter aj pre npm konfigurácie. Over ho cez `node --version` v termináli, z ktorého spúšťaš príkazy.
+In PyCharm, select the same Node.js 24 interpreter for npm configurations. Verify it with `node --version` in the terminal where you run commands.
 
 ```sh
 npm install
 npm run dev
 ```
 
-- Otázka: http://localhost:5173/
-- Nastavenia: http://localhost:5173/settings.html
+- Visit prompt: http://localhost:5173/
+- Settings: http://localhost:5173/settings.html
 
-Nastavenia sa v náhľade ukladajú do `localStorage`. Rozšírenie má vlastné oddelené nastavenia vo `browser.storage.local`.
+The preview saves its settings in `localStorage`. The extension keeps separate settings in `browser.storage.local`.
 
-Náhľad umožňuje skúsiť formulár, TOTP overenie aj kontrolu piatich slov. Najskôr pridaj QR kód z náhľadu nastavení do overovacej aplikácie; náhľad má vlastný kľúč oddelený od rozšírenia. Po potvrdení zobrazí úspech; neotvorí cieľovú stránku. Prehliadače bežne nedovolia webovej aplikácii zavrieť panel otvorený ručne; vtedy sa zobrazí pokyn na ručné zavretie. Zachytávanie návštevy domény a zatvorenie panelu fungujú v rozšírení.
+Use the preview to try the form, TOTP verification and five-word validation. First, scan the QR code on the preview settings page with your authenticator app; the preview uses its own key, separate from the extension. Successful confirmation displays a success message without opening the destination page. Browsers generally prevent web applications from closing tabs opened manually; in that case, the preview asks you to close the tab yourself. Navigation interception and tab closing work in the extension.
 
-## Nastavenia
+## Settings
 
-Klikni na ikonu WakeUp vo Firefoxe alebo otvor nastavenia doplnku v `about:addons`.
+Click the WakeUp icon in Firefox or open the extension's preferences in `about:addons`.
 
-Pri prvom spustení sa automaticky vytvorí a uloží jeden spoločný TOTP kľúč pre všetky sledované domény. Nastavenia ho stále zobrazujú ako QR kód aj textový kľúč na ručné pridanie do externej overovacej aplikácie. Používa SHA-1, šesť číslic a 30-sekundový interval podľa [RFC 6238](https://www.rfc-editor.org/rfc/rfc6238); kontrola toleruje jeden susedný interval pre rozdiel hodín. Zmeny domén ani reštart kľúč nemenia. QR kód aj overovanie vznikajú lokálne bez externej služby. Toto je pomôcka na vedomú pauzu, nie zabezpečenie.
+On first use, the extension automatically generates and saves one shared TOTP key for all monitored domains. The settings page continues to display it as a QR code and a text key for manual setup in an external authenticator app. It uses SHA-1, six digits and a 30-second interval according to [RFC 6238](https://www.rfc-editor.org/rfc/rfc6238). Verification accepts one adjacent interval in either direction to allow for clock differences. Domain changes and restarts do not change the key. QR code generation and verification happen locally without an external service. This is a tool for taking a mindful pause, not a security mechanism.
 
-Názov aplikácie sa doplní automaticky z domény, napríklad facebook.com → Facebook. Môžeš ho ručne upraviť; vlastný názov sa pri zmene domény zachová. Zoznam možno ľubovoľne rozšíriť a položky odstrániť; prázdny uložený zoznam vypne zachytávanie návštev.
+The site name is derived automatically from its domain, for example facebook.com → Facebook. You can edit it manually; a custom name is preserved when the domain changes. Add or remove entries as needed. Saving an empty list disables navigation interception.
 
-Zmeny potvrď tlačidlom **Uložiť nastavenia**. Pri novej doméne Firefox požiada o prístup k nej. Bez povolenia sa zmeny neuložia. Doména zahŕňa aj subdomény; ak má subdoména vlastný záznam, použije sa jej názov aplikácie.
+Confirm changes with **Save settings**. Firefox requests access when you add a new domain. Changes are not saved without permission. A domain rule also covers its subdomains; if a subdomain has its own entry, that entry's site name is used.
 
-## Testovanie vo Firefoxe
+## Testing in Firefox
 
-1. Spusti `npm run build`.
-2. Otvor `about:debugging#/runtime/this-firefox`.
-3. Klikni na **Načítať dočasný doplnok** a vyber `dist/manifest.json`.
-4. Klikni na ikonu rozšírenia, naskenuj QR kód do externej TOTP aplikácie a nastav domény. Predvolený zoznam obsahuje Facebook.
-5. V novom paneli otvor sledovanú doménu. Namiesto nej sa zobrazí obrazovka WakeUp.
-6. **Pokračovať** vyžaduje šesť číslic a aspoň päť slov. Nesprávny alebo vypršaný kód zobrazí chybu; správny kód spolu s odpoveďou umožní návrat na pôvodnú adresu.
-7. Odíď na inú doménu a vráť sa: otázka sa zobrazí znova. Nový panel tiež vyžaduje vlastné potvrdenie.
-8. **Zavrieť okno** zavrie aktuálny panel s otázkou.
+1. Run `npm run build`.
+2. Open `about:debugging#/runtime/this-firefox`.
+3. Click **Load Temporary Add-on…** and select `dist/manifest.json`.
+4. Click the extension icon, scan the QR code with an external authenticator app and configure the domains. The default list includes Facebook.
+5. Open a monitored domain in a new tab. The WakeUp prompt appears instead of the destination page.
+6. **Continue** requires six digits and at least five words. An incorrect or expired code displays an error. A valid code and explanation allow navigation to the original URL.
+7. Navigate to another domain and return: the prompt appears again. A new tab also requires its own confirmation.
+8. **Close window** closes the current tab containing the prompt.
 
-Potvrdenie platí počas návštevy domény v danom paneli. Je uložené len v pamäti prehliadača. Zmena nastavení zruší existujúce potvrdenia. Text vysvetlenia sa neukladá ani neodosiela na server.
+Confirmation remains valid while visiting the domain in that tab. It is stored only in browser memory. Changing the settings clears existing confirmations. The explanation text is neither saved nor sent to a server.
 
-Po zmene kódu spusti `npm run build` a pri doplnku v `about:debugging` klikni na **Znovu načítať**. Dočasný doplnok sa po reštarte Firefoxu odstráni.
+After changing the code, run `npm run build` and click **Reload** for the extension in `about:debugging`. Firefox removes the temporary extension when it restarts.
 
-## Kontroly a formátovanie
+## Checks and formatting
 
-Použi Node.js 24 alebo novší, ktorý podporuje priame spúšťanie TypeScript testov.
+Use Node.js 24, as specified in `.nvmrc`, to run the TypeScript tests directly.
 
-- `npm run lint` — ESLint pre React a TypeScript.
-- `npm run lint:fix` — automatické opravy.
-- `npm run format` — formátovanie cez Prettier.
-- `npm run format:check` — kontrola formátovania.
-- `npm test` — domény, počítanie slov, nastavenia a automatické názvy, TOTP testovacie vektory RFC 6238, schválenie návštevy a správanie background skriptu so simulovanými Firefox API.
-- `npm run build` — typová kontrola a zostavenie.
+- `npm run lint` — ESLint checks for React and TypeScript.
+- `npm run lint:fix` — automatic lint fixes.
+- `npm run format` — formatting with Prettier.
+- `npm run format:check` — formatting checks.
+- `npm test` — domains, word counting, settings and automatic names, RFC 6238 TOTP test vectors, visit approval and background script behavior using simulated Firefox APIs.
+- `npm run build` — type checking and production build.
 
-## Štruktúra
+## Project structure
 
-- `src/App.tsx` — obrazovka s otázkou; stav a odoslanie formulára rieši `use-visit.ts`.
-- `src/VisitForm.tsx`, `src/TotpField.tsx` — riadený formulár návštevy a opakovane použiteľné TOTP pole s popisom a jedinečnými ID.
-- `src/visit.ts` — schválenie návštevy a zatvorenie panelu v rozšírení aj náhľade.
-- `src/Settings.tsx` — obrazovka nastavení; načítanie, úpravy a uloženie rieši `use-domain-settings.ts`.
-- `src/DomainRuleEditor.tsx` — samostatný riadený editor jednej domény a názvu aplikácie.
-- `src/DomainRulesFieldset.tsx` — riadený zoznam editorov domén s pridaním, odstránením a spoločným stavom `disabled`; nezávisí od ukladania ani stránky nastavení.
-- `src/LanguageSettings.tsx` — výber jazyka cez spoločný `SelectField`.
-- `src/domain-draft.ts` — pracovné riadky nastavení, automatické názvy a prevod na uložené pravidlá.
-- `src/TextField.tsx`, `src/Icon.tsx`, `src/ErrorMessage.tsx` — spoločné UI prvky; polia automaticky prepájajú label s jedinečným ID vstupu.
-- `src/FormField.tsx`, `src/SelectField.tsx` — spoločný obal označeného poľa a výberové pole s natívnymi HTML atribútmi.
-- `src/FormActions.tsx` — dvojica tlačidiel zrušenia a odoslania pre oba formuláre; prijíma texty, ikony, stav spracovania a ID formulára.
-- `src/MatrixBackground.tsx`, `src/matrix-animation.ts` — React obal a samostatný canvas renderer s funkciou na zastavenie animácie a odstránenie listenerov.
-- `src/settings-store.ts` — ukladanie nastavení.
-- `src/totp.ts` — generovanie kľúča, provisioning URI a overovanie TOTP.
-- `src/TotpSetup.tsx` — QR kód a textový kľúč v nastaveniach.
-- `src/policy.ts` — validácia domén, výber sledovanej domény a počítanie slov.
-- `src/background.ts` — zachytenie navigácie a dočasné potvrdenia.
-- `manifest.template.json` — šablóna Firefox oprávnení a nastavení doplnku; build doplní názov, verziu a identifikátor z `package.json`.
+- `src/App.tsx` — visit prompt screen; `use-visit.ts` handles form state and submission.
+- `src/VisitForm.tsx`, `src/TotpField.tsx` — controlled visit form and reusable TOTP field with a label and unique IDs.
+- `src/visit.ts` — visit approval and tab closing in the extension and preview.
+- `src/Settings.tsx` — settings screen; `use-domain-settings.ts` handles loading, editing and saving.
+- `src/DomainRuleEditor.tsx` — standalone controlled editor for one domain and its site name.
+- `src/DomainRulesFieldset.tsx` — controlled list of domain editors with add, remove and shared `disabled` state; independent of persistence and the settings page.
+- `src/LanguageSettings.tsx` — language selection using the shared `SelectField`.
+- `src/domain-draft.ts` — draft settings rows, automatic names and conversion to saved rules.
+- `src/TextField.tsx`, `src/Icon.tsx`, `src/ErrorMessage.tsx` — shared UI elements; fields automatically associate labels with unique input IDs.
+- `src/FormField.tsx`, `src/SelectField.tsx` — shared wrapper for labeled fields and a select field supporting native HTML attributes.
+- `src/FormActions.tsx` — cancel and submit buttons shared by both forms; accepts labels, icons, processing state and a form ID.
+- `src/MatrixBackground.tsx`, `src/matrix-animation.ts` — React wrapper and standalone canvas renderer with a cleanup function that stops animation and removes event listeners.
+- `src/settings-store.ts` — settings persistence.
+- `src/totp.ts` — key generation, provisioning URI and TOTP verification.
+- `src/TotpSetup.tsx` — QR code and text key in the settings.
+- `src/policy.ts` — domain validation, monitored domain selection and word counting.
+- `src/background.ts` — navigation interception and temporary approvals.
+- `manifest.template.json` — Firefox permissions and extension settings template; the build adds the name, version and identifier from `package.json`.
 
-Identifikátor rozšírenia sa generuje ako `@${name}.wondercules` z poľa `name` v `package.json` a zapíše sa do `browser_specific_settings.gecko.id`. Zmena technického názvu zmení identitu doplnku vo Firefoxe; po publikovaní ho zachovaj aj pri ďalších verziách.
+The extension identifier is generated as `@${name}.wondercules` from the `name` field in `package.json` and written to `browser_specific_settings.gecko.id`. Changing the technical package name changes the extension's identity in Firefox. Keep it unchanged after publication, including in subsequent versions.
 
-## Jazyky a preklady
+## Languages and translations
 
-Texty hlavnej aplikácie aj nastavení vrátane validačných hlášok sú v `src/locales.json`. Každý jazyk má vlastný kód, zobrazovaný názov `name` a slovník `messages`. Zoznam v nastaveniach sa vytvára z tohto súboru automaticky. Ďalší jazyk pridáš skopírovaním existujúceho záznamu pod nový kód a preložením hodnôt; zachovaj rovnaké kľúče a parametre ako `{count}`, `{site}` či `{domain}`. Úplnosť slovníkov a parametre overujú testy.
+Text for the main application and settings, including validation messages, is stored in `src/locales.json`. Each language has a code, a display name (`name`) and a `messages` dictionary. The language list in settings is generated automatically from this file. To add a language, copy an existing entry under a new code and translate its values. Preserve the same keys and placeholders, such as `{count}`, `{site}` and `{domain}`. Tests check dictionary completeness and placeholders.
 
-V komponentoch použi `const { t } = useLanguage()` a napríklad `t('saveSettings')` alebo `t('reasonTooShort', { count: 5 })`. Voľba jazyka sa v nastaveniach okamžite zobrazí ako náhľad. Tlačidlo uloženia ju zapíše do `browser.storage.local` v rozšírení alebo do `localStorage` v náhľade a aktualizuje aj ostatné otvorené stránky aplikácie. Predvolený jazyk je angličtina; používa sa aj pri neznámom alebo odstránenom jazyku.
+In components, use `const { t } = useLanguage()` and calls such as `t('saveSettings')` or `t('reasonTooShort', { count: 5 })`. Selecting a language immediately previews it in settings. Saving writes it to `browser.storage.local` in the extension or `localStorage` in the preview and updates other open application pages. English is the default language and is also used when the saved language is unknown or has been removed.
 
-Predvolený jazyk sa nastavuje iba premennou `defaultLanguage` v `src/i18n.ts`. Vite z nej doplní `lang` a preložený titulok do `index.html` aj `settings.html` pri vývoji aj pri zostavení. Po načítaní aplikácie `LanguageProvider` používa jednu hodnotu `language`: uloženú podporovanú voľbu používateľa alebo predvolený jazyk. Tá riadi texty rozhrania, jazyk dokumentu aj titulok stránky.
+The default language is configured only through `defaultLanguage` in `src/i18n.ts`. Vite uses it to populate the `lang` attribute and translated title in both `index.html` and `settings.html` during development and production builds. Once the application loads, `LanguageProvider` uses a single `language` value: the user's saved supported language or the default. This value controls interface text, the document language and the page title.
 
-Jednotlivé skupiny nastavení používajú `SettingsBlock` so spoločným sivým pozadím, nadpisom a vysvetlením.
+Settings groups use `SettingsBlock` for a shared gray background, heading and explanatory text.
 
-## Dizajnové tokeny
+## Design tokens
 
-Všetky farby, veľkosti a hrúbky písma, rodiny písma, riadkovanie, hrúbky okrajov a ikon, zaoblenia, rozostupy a tiene sú definované v `src/tokens.json`. Nové vizuálne hodnoty pridávaj do tohto súboru; v komponentoch ani štýloch nezadávaj priame hodnoty.
+All colors, font sizes and weights, font families, line heights, border and icon stroke widths, corner radii, spacing and shadows are defined in `src/tokens.json`. Add new visual values to this file instead of hardcoding them in components or styles.
 
-Základné tokeny `palette-*`, `font-*`, `space-*` a `radius-*` definujú paletu a stupnice. Významové tokeny `color-*` na ne odkazujú podľa použitia: napríklad `color-text`, `color-surface`, `color-border-control` alebo `color-error-text`. Spoločné okraje a focus používajú `border-control`, `border-button`, `border-divider` a `outline-focus`. Zmena jednej definície sa tak prejaví vo všetkých príslušných komponentoch.
+Base tokens (`palette-*`, `font-*`, `space-*` and `radius-*`) define the palette and scales. Semantic `color-*` tokens reference them by purpose, for example `color-text`, `color-surface`, `color-border-control` and `color-error-text`. Shared borders and focus styles use `border-control`, `border-button`, `border-divider` and `outline-focus`. Changing one definition updates all components that use it.
 
-V CSS použi napríklad `color: var(--color-text)` a `font-size: var(--font-size-small)`. Pre React štýly použi typovo kontrolované `tokenVar('color-action-success')` z `src/design-tokens.ts`; CSS premenné umožnia aj prepísanie témy. Pre canvas, QR kód a iné API vyžadujúce konkrétne hodnoty importuj základné tokeny z `tokens.json`, napríklad `tokens['palette-green-400']`. Významové tokeny obsahujú CSS odkazy, preto ich takým API neposielaj priamo.
+In CSS, use declarations such as `color: var(--color-text)` and `font-size: var(--font-size-small)`. For React styles, use the type-checked `tokenVar('color-action-success')` helper from `src/design-tokens.ts`; CSS variables also support theme overrides. For canvas, QR codes and other APIs that require concrete values, import base tokens from `tokens.json`, for example `tokens['palette-green-400']`. Semantic tokens contain CSS references, so do not pass them directly to these APIs.
 
-Vite plugin `design-tokens.plugin.ts` vytvorí z tokenov CSS premenné a ikonu rozšírenia. Responzívny variant `@media (--compact)` používa hodnotu `breakpoint-compact` z tokenov. Vygenerované hodnoty v `dist` neupravuj ručne.
+The Vite plugin in `design-tokens.plugin.ts` generates CSS variables and the extension icon from the tokens. The responsive `@media (--compact)` query uses the `breakpoint-compact` token. Do not edit generated values in `dist` manually.
 
-`npm run lint` kontroluje priame dizajnové hodnoty v Reacte a TypeScripte aj používanie tokenov v CSS. Samostatnú kontrolu CSS spustíš cez `npm run check:tokens`; overuje aj chýbajúce a cyklické odkazy medzi tokenmi. Štrukturálne hodnoty ako `0`, `100%`, súradnice SVG a dedenie štýlov zostávajú povolené.
+`npm run lint` checks for hardcoded design values in React and TypeScript and verifies token usage in CSS. Run `npm run check:tokens` for the standalone CSS check; it also detects missing and circular token references. Structural values such as `0`, `100%`, SVG coordinates and inherited styles remain allowed.
