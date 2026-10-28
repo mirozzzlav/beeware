@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import test from 'node:test'
+import packageInfo from '../package.json' with { type: 'json' }
 import { MessageError, normalizeLanguage, translate } from '../src/i18n.ts'
 import { normalizeRules } from '../src/policy.ts'
 
@@ -77,4 +78,18 @@ test('validation errors retain keys so they can be translated after changing lan
     translate('sk', error.key, error.params),
     'Doména example.org je v zozname viackrát.',
   )
+})
+
+test('uses the package display name in every translated branded message', () => {
+  for (const [language, locale] of Object.entries(locales)) {
+    for (const [key, message] of Object.entries(locale.messages)) {
+      if (!message.includes('{appName}')) continue
+      const translated = translate(language, key)
+      assert.ok(
+        translated.includes(packageInfo.displayName),
+        `${language}.${key}`,
+      )
+      assert.ok(!translated.includes('{appName}'))
+    }
+  }
 })

@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
+import packageInfo from '../package.json' with { type: 'json' }
 import {
   generateTotp,
   generateTotpSecret,
@@ -56,6 +57,11 @@ test('creates independent base32 keys and an authenticator provisioning URI', ()
   const uri = new URL(totpUri(first))
   assert.equal(uri.protocol, 'otpauth:')
   assert.equal(uri.hostname, 'totp')
+  assert.equal(uri.searchParams.get('issuer'), packageInfo.displayName)
+  assert.equal(
+    decodeURIComponent(uri.pathname),
+    `/${packageInfo.displayName}:${packageInfo.displayName}`,
+  )
   assert.equal(uri.searchParams.get('secret'), first)
   assert.equal(uri.searchParams.get('digits'), '6')
   assert.equal(uri.searchParams.get('period'), '30')

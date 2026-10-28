@@ -1,3 +1,5 @@
+import { appName } from './app-info.ts'
+
 const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'
 
 export function generateTotpSecret(): string {
@@ -8,7 +10,8 @@ export function generateTotpSecret(): string {
 }
 
 export function totpUri(secret: string): string {
-  return `otpauth://totp/Beeware:Beeware?secret=${secret}&issuer=Beeware&algorithm=SHA1&digits=6&period=30`
+  const name = encodeURIComponent(appName)
+  return `otpauth://totp/${name}:${name}?secret=${secret}&issuer=${name}&algorithm=SHA1&digits=6&period=30`
 }
 
 export async function generateTotp(

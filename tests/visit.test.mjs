@@ -9,7 +9,7 @@ let tab = { id: 7 }
 let response = { ok: true }
 globalThis.browser = {
   runtime: {
-    id: 'beeware@test',
+    id: 'extension@test',
     sendMessage: async (message) => {
       messages.push(message)
       return message.type === 'get-totp-secret' ? { secret } : response

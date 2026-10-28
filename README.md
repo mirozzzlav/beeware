@@ -1,4 +1,6 @@
-# Beeware
+# WakeUp
+
+Projekt a rozhranie používajú názov **WakeUp** z poľa `displayName` v `package.json`. Dlhý názov pluginu **Wake Up Neo** je v poli `longName` a build ho zapíše do `name` vo výslednom `dist/manifest.json`. `src/app-info.ts` sprístupňuje názvy aplikácii aj buildu. Technický názov `name` a verzia sa tiež čítajú z `package.json`.
 
 Firefox rozšírenie s Reactom a TypeScriptom, ktoré pred návštevou vybranej domény zobrazí TOTP blok a otázku „Práve ideš navštíviť Facebook. Čo sa tam chystáš robiť?“. Názov aplikácie sa dosadí z nastavení. Pokračovanie vyžaduje správny šesťmiestny kód z externej TOTP aplikácie a vysvetlenie aspoň piatimi slovami; druhé tlačidlo zavrie aktuálny panel.
 
@@ -24,7 +26,7 @@ npm run build
 
 The first two commands should print `v24.19.0` and `11.17.0`. `npm ci` installs the exact dependency versions recorded in `package-lock.json`; keep the lockfile unchanged. Build tools are installed locally by npm; no global Vite or TypeScript installation is needed.
 
-`npm run build` runs TypeScript checking followed by a production Vite build. Vite clears the output directory, bundles the React application and background script, copies `public/manifest.json`, and generates the icon and CSS variables through `design-tokens.plugin.ts` using `src/tokens.json`.
+`npm run build` runs TypeScript checking followed by a production Vite build. Vite clears the output directory, bundles the React application and background script, generates `manifest.json` from `manifest.template.json` and the metadata in `package.json`, and generates the icon and CSS variables through `design-tokens.plugin.ts` using `src/tokens.json`.
 
 The complete installable extension is in `dist/`, with `manifest.json` directly inside it. Compare the contents of this directory with the submitted extension package. Do not edit generated files manually or use the development server to produce the submission.
 
@@ -34,18 +36,34 @@ The complete installable extension is in `dist/`, with `manifest.json` directly 
 npm run lint
 npm run format:check
 npm test
-(cd dist && zip -r ../beeware-0.1.0.zip .)
+npm run package
 ```
 
-The ZIP command creates `beeware-0.1.0.zip` in the source directory, with `manifest.json` at the archive root. Update the archive filename when releasing a different version. For functional testing, follow the Firefox testing instructions below; the extension does not require an online account. TOTP setup requires an authenticator app.
+`npm run package` runs a fresh production build and creates two archives in `releases/`, named using `name` and `version` from `package.json`:
+
+- `wakeup-0.1.0.zip`: the contents of `dist/`, with `manifest.json` at the archive root. Upload this as the extension package.
+- `wakeup-0.1.0-source.zip`: the matching source code, this README, lockfile, tests, scripts and build configuration. Attach this as the source code package for Mozilla reviewers.
+
+The command requires Node.js 24, installed npm dependencies (`npm ci --include=dev`) and the `zip` command. It replaces older ZIP files beginning with the current package name followed by `-` in `releases/` only after both new archives have been created successfully. ZIP files elsewhere are left untouched. The source archive excludes dependencies, build output, release archives, Git and IDE metadata, environment files and logs. The `releases/` directory is ignored by Git.
+
+For functional testing, follow the Firefox testing instructions below; the extension does not require an online account. TOTP setup requires an authenticator app.
 
 ### Source archive for AMO
 
-Submit a separate ZIP of the matching source tree, including this README, `package.json`, `package-lock.json`, `src/`, `public/`, `scripts/`, `tests/`, HTML entry files, and all build, TypeScript, ESLint and formatting configuration files. Exclude `node_modules/`, `dist/`, `.git/`, IDE settings and generated release archives. Attach the matching source archive to each submitted version.
+Submit a separate ZIP of the matching source tree, including this README, `package.json`, `package-lock.json`, `src/`, `manifest.template.json`, `scripts/`, `tests/`, HTML entry files, and all build, TypeScript, ESLint and formatting configuration files. Exclude `node_modules/`, `dist/`, `.git/`, IDE settings and generated release archives. Attach the matching source archive to each submitted version.
 
 Mozilla's [source code submission requirements](https://extensionworkshop.com/documentation/publish/source-code-submission/) explicitly recommend including build instructions in a README shipped with the sources.
 
 ## Náhľad na localhoste
+
+Projekt používa Node.js 24; testy priamo importujú TypeScript súbory a na Node.js 20 sa nespustia. Verzia pre vývoj je uložená v `.nvmrc`. Ak používaš [nvm](https://github.com/nvm-sh/nvm), v koreňovom adresári projektu spusti:
+
+```sh
+nvm install
+nvm use
+```
+
+V PyCharme vyber rovnaký Node.js 24 interpreter aj pre npm konfigurácie. Over ho cez `node --version` v termináli, z ktorého spúšťaš príkazy.
 
 ```sh
 npm install
@@ -61,7 +79,7 @@ Náhľad umožňuje skúsiť formulár, TOTP overenie aj kontrolu piatich slov. 
 
 ## Nastavenia
 
-Klikni na ikonu Beeware vo Firefoxe alebo otvor nastavenia doplnku v `about:addons`.
+Klikni na ikonu WakeUp vo Firefoxe alebo otvor nastavenia doplnku v `about:addons`.
 
 Pri prvom spustení sa automaticky vytvorí a uloží jeden spoločný TOTP kľúč pre všetky sledované domény. Nastavenia ho stále zobrazujú ako QR kód aj textový kľúč na ručné pridanie do externej overovacej aplikácie. Používa SHA-1, šesť číslic a 30-sekundový interval podľa [RFC 6238](https://www.rfc-editor.org/rfc/rfc6238); kontrola toleruje jeden susedný interval pre rozdiel hodín. Zmeny domén ani reštart kľúč nemenia. QR kód aj overovanie vznikajú lokálne bez externej služby. Toto je pomôcka na vedomú pauzu, nie zabezpečenie.
 
@@ -75,7 +93,7 @@ Zmeny potvrď tlačidlom **Uložiť nastavenia**. Pri novej doméne Firefox pož
 2. Otvor `about:debugging#/runtime/this-firefox`.
 3. Klikni na **Načítať dočasný doplnok** a vyber `dist/manifest.json`.
 4. Klikni na ikonu rozšírenia, naskenuj QR kód do externej TOTP aplikácie a nastav domény. Predvolený zoznam obsahuje Facebook.
-5. V novom paneli otvor sledovanú doménu. Namiesto nej sa zobrazí obrazovka Beeware.
+5. V novom paneli otvor sledovanú doménu. Namiesto nej sa zobrazí obrazovka WakeUp.
 6. **Pokračovať** vyžaduje šesť číslic a aspoň päť slov. Nesprávny alebo vypršaný kód zobrazí chybu; správny kód spolu s odpoveďou umožní návrat na pôvodnú adresu.
 7. Odíď na inú doménu a vráť sa: otázka sa zobrazí znova. Nový panel tiež vyžaduje vlastné potvrdenie.
 8. **Zavrieť okno** zavrie aktuálny panel s otázkou.
@@ -108,9 +126,9 @@ Použi Node.js 24 alebo novší, ktorý podporuje priame spúšťanie TypeScript
 - `src/TotpSetup.tsx` — QR kód a textový kľúč v nastaveniach.
 - `src/policy.ts` — validácia domén, výber sledovanej domény a počítanie slov.
 - `src/background.ts` — zachytenie navigácie a dočasné potvrdenia.
-- `public/manifest.json` — Firefox oprávnenia a nastavenie doplnku.
+- `manifest.template.json` — šablóna Firefox oprávnení a nastavení doplnku; build doplní názov, verziu a identifikátor z `package.json`.
 
-Identifikátor rozšírenia je `@beeware.wondercules` v `browser_specific_settings.gecko.id`. Po prvom publikovaní ho zachovaj aj pri ďalších verziách.
+Identifikátor rozšírenia sa generuje ako `@${name}.wondercules` z poľa `name` v `package.json` a zapíše sa do `browser_specific_settings.gecko.id`. Zmena technického názvu zmení identitu doplnku vo Firefoxe; po publikovaní ho zachovaj aj pri ďalších verziách.
 
 ## Jazyky a preklady
 

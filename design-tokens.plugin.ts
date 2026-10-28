@@ -1,4 +1,5 @@
 import type { Plugin } from 'vite'
+import { appSlug } from './src/app-info.ts'
 import tokens from './src/tokens.json' with { type: 'json' }
 
 const virtualId = 'virtual:tokens.css'
@@ -6,7 +7,7 @@ const resolvedId = '\0' + virtualId
 
 export default function designTokens(): Plugin {
   return {
-    name: 'beeware-design-tokens',
+    name: `${appSlug}-design-tokens`,
     resolveId(id) {
       if (id === virtualId) return resolvedId
     },

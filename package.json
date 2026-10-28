@@ -1,11 +1,17 @@
 {
-  "name": "firefox-react-extension",
+  "name": "wakeup",
+  "displayName": "WakeUp",
+  "longName": "Wake Up Neo",
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "package": "node scripts/package-release.mjs",
     "preview": "vite preview",
     "lint": "eslint . --max-warnings 0 && npm run check:tokens",
     "lint:fix": "eslint . --fix",

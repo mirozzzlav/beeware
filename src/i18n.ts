@@ -1,4 +1,5 @@
 import locales from './locales.json' with { type: 'json' }
+import { appName } from './app-info.ts'
 
 export type Language = keyof typeof locales
 export type MessageKey = keyof typeof locales.sk.messages
@@ -31,8 +32,9 @@ export function translate(
   const message =
     dictionaries[language]?.messages[key] ??
     dictionaries[defaultLanguage].messages[key]
+  const values: MessageParams = { ...params, appName }
   return message.replace(/\{(\w+)\}/g, (placeholder, name: string) =>
-    Object.hasOwn(params, name) ? String(params[name]) : placeholder,
+    Object.hasOwn(values, name) ? String(values[name]) : placeholder,
   )
 }
 

@@ -3,7 +3,7 @@ import { beforeEach, test } from 'node:test'
 
 let data = {}
 globalThis.browser = {
-  runtime: { id: 'beeware@test' },
+  runtime: { id: 'extension@test' },
   storage: {
     local: {
       get: async (key) => ({ [key]: data[key] }),

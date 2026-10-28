@@ -6,7 +6,7 @@ const state = {}
 const localState = {}
 const tabs = new Map()
 const updates = []
-const checkPage = 'moz-extension://beeware/index.html'
+const checkPage = 'moz-extension://extension/index.html'
 const target = 'https://www.facebook.com/groups/example?tab=posts'
 const pageUrl = `${checkPage}?target=${encodeURIComponent(target)}`
 const secret = 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ'
@@ -20,7 +20,7 @@ const event = (name) => ({
 
 globalThis.browser = {
   runtime: {
-    id: 'beeware@test',
+    id: 'extension@test',
     getURL: () => checkPage,
     onMessage: event('message'),
     onInstalled: event('installed'),
@@ -78,7 +78,7 @@ beforeEach(async () => {
 
 const request = (tabId = 7, url = target) =>
   listeners.request.fn({ tabId, url })
-const sender = { id: 'beeware@test', url: pageUrl }
+const sender = { id: 'extension@test', url: pageUrl }
 const message = (
   reason = 'Chcem odpísať kamarátovi a dohodnúť stretnutie.',
 ) => ({

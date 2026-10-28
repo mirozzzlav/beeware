@@ -1,3 +1,4 @@
+import { appSlug } from './app-info.ts'
 import { normalizeRules, protectedSites, type DomainRule } from './policy.ts'
 import { generateTotpSecret } from './totp.ts'
 import { MessageError, normalizeLanguage, type Language } from './i18n.ts'
@@ -52,7 +53,7 @@ export async function readTotpSecret(): Promise<string> {
       throw new MessageError('totpLoadError')
     return response.secret
   }
-  return navigator.locks.request('beeware-totp-secret', ensureTotpSecret)
+  return navigator.locks.request(`${appSlug}-totp-secret`, ensureTotpSecret)
 }
 
 export function ensureTotpSecret(): Promise<string> {
