@@ -86,23 +86,29 @@ button:focus-visible {
   outline: var(--outline-focus);
   outline-offset: var(--border-width-focus);
 }
-.action-button,
-.settings-footer > .message {
-  gap: var(--space-4);
-  padding: var(--space-5) var(--space-12);
-  font-size: var(--font-size-small);
-}
-.action-button {
+.pill {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  width: fit-content;
+  max-width: 100%;
   gap: var(--space-4);
   padding: var(--space-5) var(--space-12);
   font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  border: var(--border-button);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-control);
+}
+.pill-content {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.action-button {
+  justify-content: center;
   background: var(--color-surface);
   color: var(--color-text-control);
 }
-.action-button-icon {
+.pill-leading-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -110,9 +116,9 @@ button:focus-visible {
   width: var(--size-icon-pill);
   height: var(--size-icon-pill);
 }
-.action-button-icon > svg {
-  width: 100%;
-  height: 100%;
+.pill-leading-icon > svg {
+  width: var(--size-icon-normal);
+  height: var(--size-icon-normal);
   stroke-width: var(--stroke-width-icon);
 }
 button {
@@ -157,17 +163,8 @@ button:disabled {
   flex-shrink: 0;
 }
 .message {
-  display: flex;
-  width: fit-content;
-  max-width: 100%;
-  align-items: flex-start;
-  gap: var(--space-10);
   margin: var(--space-16) 0;
-  padding: var(--space-12) var(--space-16);
-  border: var(--border-width-thin) solid currentColor;
-  border-radius: var(--radius-input);
-  font-size: var(--font-size-small);
-  line-height: var(--line-height-body);
+  border-color: currentColor;
   text-align: left;
 }
 .message-error {
@@ -177,13 +174,6 @@ button:disabled {
 .message-success {
   background: var(--color-success-surface);
   color: var(--color-success-text);
-}
-.message-icon {
-  flex-shrink: 0;
-  width: var(--size-icon-normal);
-  height: var(--size-icon-normal);
-  margin-top: var(--border-width-thin);
-  stroke-width: var(--stroke-width-icon);
 }
 
 .settings-page {
@@ -277,21 +267,7 @@ button:disabled {
   box-shadow: var(--shadow-settings-footer);
 }
 .settings-footer > .message {
-  align-items: center;
-  font-weight: var(--font-weight-semibold);
-  border-radius: var(--radius-pill);
-  box-shadow: var(--shadow-control);
-  width: fit-content;
   margin: 0 0 var(--space-16);
-}
-.settings-footer > .message > span {
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-.settings-footer .message-icon {
-  width: var(--size-icon-pill);
-  height: var(--size-icon-pill);
-  margin-top: 0;
 }
 .settings-footer > .message:last-child {
   margin-bottom: 0;
@@ -486,8 +462,7 @@ a {
   .panel-actions {
     gap: var(--space-8);
   }
-  .action-button,
-  .settings-footer > .message {
+  .pill {
     padding: var(--space-5) var(--space-10);
     font-size: var(--font-size-small);
   }

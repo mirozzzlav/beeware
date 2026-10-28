@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import Icon from './Icon'
+import Pill from './Pill'
 
 type MessageProps = {
   children: ReactNode
@@ -8,15 +9,12 @@ type MessageProps = {
 
 export default function Message({ children, variant }: MessageProps) {
   return (
-    <div
+    <Pill
       className={`message message-${variant}`}
       role={variant === 'error' ? 'alert' : 'status'}
+      icon={<Icon name={variant === 'error' ? 'error' : 'submit'} />}
     >
-      <Icon
-        name={variant === 'error' ? 'error' : 'submit'}
-        className="message-icon"
-      />
-      <span>{children}</span>
-    </div>
+      {children}
+    </Pill>
   )
 }

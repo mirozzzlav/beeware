@@ -1,5 +1,6 @@
 import type { ComponentProps, ReactNode } from 'react'
 import { tokenVar, type ColorToken } from './design-tokens'
+import Pill from './Pill'
 
 type ActionButtonProps = Omit<ComponentProps<'button'>, 'color'> & {
   color?: ColorToken
@@ -18,8 +19,10 @@ export default function ActionButton({
   ...props
 }: ActionButtonProps) {
   return (
-    <button
+    <Pill
       {...props}
+      as="button"
+      icon={icon}
       type={type}
       className={`action-button ${className ?? ''}`.trim()}
       data-appearance={appearance}
@@ -39,12 +42,7 @@ export default function ActionButton({
         }),
       }}
     >
-      {icon && (
-        <span className="action-button-icon" aria-hidden="true">
-          {icon}
-        </span>
-      )}
       {children}
-    </button>
+    </Pill>
   )
 }
