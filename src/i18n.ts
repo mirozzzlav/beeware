@@ -4,7 +4,7 @@ import { appName } from './app-info.ts'
 export type Language = keyof typeof locales
 export type MessageKey = keyof typeof locales.sk.messages
 export type MessageParams = Record<string, string | number>
-export const defaultLanguage: Language = 'sk'
+export const defaultLanguage: Language = 'en'
 
 // All languages must provide the same keys. Adding a locale also adds its option.
 const dictionaries: Record<

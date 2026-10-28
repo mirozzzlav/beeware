@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { beforeEach, test } from 'node:test'
+import { defaultLanguage } from '../src/i18n.ts'
 
 let data = {}
 globalThis.browser = {
@@ -20,17 +21,17 @@ beforeEach(() => {
 })
 
 test('persists the selected language without changing domains or the authenticator key', async () => {
-  assert.equal(await readLanguage(), 'sk')
+  assert.equal(await readLanguage(), defaultLanguage)
   await saveSites([{ domain: 'example.org', name: 'Example' }])
   const secret = await ensureTotpSecret()
-  await saveLanguage('en')
-  assert.equal(await readLanguage(), 'en')
+  await saveLanguage('sk')
+  assert.equal(await readLanguage(), 'sk')
   assert.deepEqual(await readSites(), [
     { domain: 'example.org', name: 'Example' },
   ])
   assert.equal(await ensureTotpSecret(), secret)
   data.language = 'removed-language'
-  assert.equal(await readLanguage(), 'sk')
+  assert.equal(await readLanguage(), defaultLanguage)
 })
 
 test('loads defaults initially and preserves an explicitly empty list', async () => {

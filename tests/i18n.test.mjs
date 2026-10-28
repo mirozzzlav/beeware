@@ -2,7 +2,12 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import test from 'node:test'
 import packageInfo from '../package.json' with { type: 'json' }
-import { MessageError, normalizeLanguage, translate } from '../src/i18n.ts'
+import {
+  defaultLanguage,
+  MessageError,
+  normalizeLanguage,
+  translate,
+} from '../src/i18n.ts'
 import { normalizeRules } from '../src/policy.ts'
 
 const locales = JSON.parse(
@@ -45,7 +50,7 @@ test('interpolates messages without interpreting user values as templates', () =
   )
 })
 
-test('unknown or removed languages fall back to Slovak', () => {
+test('unknown or removed languages fall back to the configured default', () => {
   for (const value of [
     undefined,
     null,
@@ -55,8 +60,9 @@ test('unknown or removed languages fall back to Slovak', () => {
     '__proto__',
     {},
   ])
-    assert.equal(normalizeLanguage(value), 'sk')
+    assert.equal(normalizeLanguage(value), defaultLanguage)
   assert.equal(normalizeLanguage('en'), 'en')
+  assert.equal(normalizeLanguage('sk'), 'sk')
 })
 
 test('validation errors retain keys so they can be translated after changing language', () => {

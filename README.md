@@ -134,7 +134,9 @@ Identifikátor rozšírenia sa generuje ako `@${name}.wondercules` z poľa `name
 
 Texty hlavnej aplikácie aj nastavení vrátane validačných hlášok sú v `src/locales.json`. Každý jazyk má vlastný kód, zobrazovaný názov `name` a slovník `messages`. Zoznam v nastaveniach sa vytvára z tohto súboru automaticky. Ďalší jazyk pridáš skopírovaním existujúceho záznamu pod nový kód a preložením hodnôt; zachovaj rovnaké kľúče a parametre ako `{count}`, `{site}` či `{domain}`. Úplnosť slovníkov a parametre overujú testy.
 
-V komponentoch použi `const { t } = useLanguage()` a napríklad `t('saveSettings')` alebo `t('reasonTooShort', { count: 5 })`. Voľba jazyka sa v nastaveniach okamžite zobrazí ako náhľad. Tlačidlo uloženia ju zapíše do `browser.storage.local` v rozšírení alebo do `localStorage` v náhľade a aktualizuje aj ostatné otvorené stránky aplikácie. Predvolený jazyk je slovenčina; používa sa aj pri neznámom alebo odstránenom jazyku.
+V komponentoch použi `const { t } = useLanguage()` a napríklad `t('saveSettings')` alebo `t('reasonTooShort', { count: 5 })`. Voľba jazyka sa v nastaveniach okamžite zobrazí ako náhľad. Tlačidlo uloženia ju zapíše do `browser.storage.local` v rozšírení alebo do `localStorage` v náhľade a aktualizuje aj ostatné otvorené stránky aplikácie. Predvolený jazyk je angličtina; používa sa aj pri neznámom alebo odstránenom jazyku.
+
+Predvolený jazyk sa nastavuje iba premennou `defaultLanguage` v `src/i18n.ts`. Vite z nej doplní `lang` a preložený titulok do `index.html` aj `settings.html` pri vývoji aj pri zostavení. Po načítaní aplikácie `LanguageProvider` používa jednu hodnotu `language`: uloženú podporovanú voľbu používateľa alebo predvolený jazyk. Tá riadi texty rozhrania, jazyk dokumentu aj titulok stránky.
 
 Jednotlivé skupiny nastavení používajú `SettingsBlock` so spoločným sivým pozadím, nadpisom a vysvetlením.
 

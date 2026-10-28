@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import designTokens from './design-tokens.plugin.ts'
 import manifest from './manifest.template.json' with { type: 'json' }
+import { defaultLanguage, translate } from './src/i18n.ts'
 import {
   appName,
   appLongName,
@@ -15,7 +16,26 @@ export default defineConfig({
     {
       name: `${appSlug}-metadata`,
       transformIndexHtml(html) {
-        return html.replaceAll('{{appName}}', appName)
+        const values: Record<string, string> = {
+          appName,
+          language: defaultLanguage,
+          appTitle: translate(defaultLanguage, 'appTitle'),
+          settingsPageTitle: translate(defaultLanguage, 'settingsPageTitle'),
+        }
+        return html.replace(/\{\{(\w+)\}\}/g, (placeholder, key: string) =>
+          Object.hasOwn(values, key)
+            ? values[key].replace(/[&<>"']/g, (character) => {
+                const entities: Record<string, string> = {
+                  '&': '&amp;',
+                  '<': '&lt;',
+                  '>': '&gt;',
+                  '"': '&quot;',
+                  "'": '&#39;',
+                }
+                return entities[character]
+              })
+            : placeholder,
+        )
       },
       generateBundle() {
         this.emitFile({
