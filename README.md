@@ -2,7 +2,7 @@
 
 The project and interface use the name **WakeUp** from the `displayName` field in `package.json`. The full extension name, **Wake Up Neo**, is stored in `longName` and written to the `name` field in the generated `dist/manifest.json`. `src/app-info.ts` exposes these names to the application and build process. The technical package name (`name`) and version are also read from `package.json`.
 
-A Firefox extension built with React and TypeScript that displays a TOTP verification field and asks, “You are about to visit Facebook. What are you going to do there?” before opening a monitored domain. The site name comes from the settings. Continuing requires a valid six-digit code from an external authenticator app and an explanation of at least five words. The other button closes the current tab.
+A Firefox extension built with React and TypeScript that asks, “You are about to visit Facebook. What are you going to do there?” before opening a monitored domain. The site name comes from the settings. By default, continuing requires an explanation of at least five words and the selected verification method: a six-digit code from an external authenticator app or a saved PIN entered on a shuffled keypad. You can customize or disable the question in settings. The other button closes the current tab.
 
 ## Build instructions for Mozilla reviewers
 
@@ -75,13 +75,19 @@ npm run dev
 
 The preview saves its settings in `localStorage`. The extension keeps separate settings in `browser.storage.local`.
 
-Use the preview to try the form, TOTP verification and five-word validation. First, scan the QR code on the preview settings page with your authenticator app; the preview uses its own key, separate from the extension. Successful confirmation displays a success message without opening the destination page. Browsers generally prevent web applications from closing tabs opened manually; in that case, the preview asks you to close the tab yourself. Navigation interception and tab closing work in the extension.
+Use the preview to try both verification methods and five-word validation. Select PIN in settings and save a PIN, or scan the QR code with your authenticator app for TOTP; the preview uses its own settings and key, separate from the extension. Successful confirmation displays a success message without opening the destination page. Browsers generally prevent web applications from closing tabs opened manually; in that case, the preview asks you to close the tab yourself. Navigation interception and tab closing work in the extension.
 
 ## Settings
 
 Click the WakeUp icon in Firefox or open the extension's preferences in `about:addons`.
 
-On first use, the extension automatically generates and saves one shared TOTP key for all monitored domains. The settings page continues to display it as a QR code and a text key for manual setup in an external authenticator app. It uses SHA-1, six digits and a 30-second interval according to [RFC 6238](https://www.rfc-editor.org/rfc/rfc6238). Verification accepts one adjacent interval in either direction to allow for clock differences. Domain changes and restarts do not change the key. QR code generation and verification happen locally without an external service. This is a tool for taking a mindful pause, not a security mechanism.
+Settings use a full-width page with three tabs: General (language and visit question), Domains and Verification method. Draft values are preserved when switching tabs, and Save settings saves all three tabs together. Tabs support arrow keys, Home and End; on narrow screens the tab bar scrolls horizontally. The header and footer stay visible while scrolling. Save comes before Cancel in the left-aligned footer, with success and error messages directly above the buttons.
+
+Under **General**, use the question switch to require or skip the written explanation, and edit the question text. The original question is the default in the selected language. An enabled question cannot be saved with empty or whitespace-only text. Disabling the question preserves its custom text and leaves PIN/TOTP verification active. English is the default language and appears first in the language dropdown.
+
+Choose **Authenticator app code** or **PIN on a shuffled keypad** under **Verification method**. New installations default to PIN with the initial code `1234`; change it in settings as desired. Existing saved method selections and PINs are preserved. PIN mode accepts 4 to 12 digits, including leading zeroes. The visit screen shows each digit from 0 to 9 once in a freshly shuffled layout for each visit. The layout stays fixed while entering the PIN; the backspace icon removes the last digit and the trash icon clears the entry. Their tooltips and accessible labels describe each action. PIN digits are visible while entering them and in settings. The PIN and selected mode are saved locally; the background script checks the saved mode and code before approving navigation. Switching back to TOTP preserves its key, and switching to PIN again preserves the saved PIN.
+
+On first use, the extension automatically generates and saves one shared TOTP key for all monitored domains. Selecting TOTP in settings displays it as a QR code and a text key for manual setup in an external authenticator app. It uses SHA-1, six digits and a 30-second interval according to [RFC 6238](https://www.rfc-editor.org/rfc/rfc6238). Verification accepts one adjacent interval in either direction to allow for clock differences. Domain changes and restarts do not change the key. QR code generation and verification happen locally without an external service. This is a tool for taking a mindful pause, not a security mechanism.
 
 The site name is derived automatically from its domain, for example facebook.com → Facebook. You can edit it manually; a custom name is preserved when the domain changes. Add or remove entries as needed. Saving an empty list disables navigation interception.
 
@@ -92,9 +98,9 @@ Confirm changes with **Save settings**. Firefox requests access when you add a n
 1. Run `npm run build`.
 2. Open `about:debugging#/runtime/this-firefox`.
 3. Click **Load Temporary Add-on…** and select `dist/manifest.json`.
-4. Click the extension icon, scan the QR code with an external authenticator app and configure the domains. The default list includes Facebook.
+4. Click the extension icon, choose a verification method and configure the domains. For TOTP, scan the QR code with an external authenticator app; for PIN, enter a PIN of 4 to 12 digits. Save the settings. The default list includes Facebook.
 5. Open a monitored domain in a new tab. The WakeUp prompt appears instead of the destination page.
-6. **Continue** requires six digits and at least five words. An incorrect or expired code displays an error. A valid code and explanation allow navigation to the original URL.
+6. **Continue** requires at least five words when the question is enabled, and either a valid TOTP code or the correct PIN entered on the shuffled keypad. An incorrect code displays an error; expired TOTP codes also fail. A valid code and explanation allow navigation to the original URL. Repeat with the other verification method, checking leading zeroes, deletion and clearing in PIN mode. Customize the question, then disable it and confirm that verification still works without an explanation. An enabled question with empty text must display a validation error when saving settings.
 7. Navigate to another domain and return: the prompt appears again. A new tab also requires its own confirmation.
 8. **Close window** closes the current tab containing the prompt.
 
@@ -130,6 +136,11 @@ Use Node.js 24, as specified in `.nvmrc`, to run the TypeScript tests directly.
 - `src/settings-store.ts` — settings persistence.
 - `src/totp.ts` — key generation, provisioning URI and TOTP verification.
 - `src/TotpSetup.tsx` — QR code and text key in the settings.
+- `src/PinKeypad.tsx`, `src/VerificationSettings.tsx`, `src/use-verification.ts` — shuffled PIN keypad, method selection and live mode updates.
+- `src/verification.ts`, `src/verification/` — core registry and individual verification modules; see [the extension guide](src/verification/README.md).
+- `src/initial-settings.ts` — initial language, verification method and per-method configuration.
+- `src/use-visit-question.ts` — saved question text, enabled state and live updates.
+- `src/Pill.tsx` — shared visual foundation for action buttons and status messages.
 - `src/policy.ts` — domain validation, monitored domain selection and word counting.
 - `src/background.ts` — navigation interception and temporary approvals.
 - `manifest.template.json` — Firefox permissions and extension settings template; the build adds the name, version and identifier from `package.json`.
@@ -143,9 +154,23 @@ Text for the main application and settings, including validation messages, is st
 
 In components, use `const { t } = useLanguage()` and calls such as `t('saveSettings')` or `t('reasonTooShort', { count: 5 })`. Selecting a language immediately previews it in settings. Saving writes it to `browser.storage.local` in the extension or `localStorage` in the preview and updates other open application pages. English is the default language and is also used when the saved language is unknown or has been removed.
 
-The default language is configured only through `defaultLanguage` in `src/i18n.ts`. Vite uses it to populate the `lang` attribute and translated title in both `index.html` and `settings.html` during development and production builds. Once the application loads, `LanguageProvider` uses a single `language` value: the user's saved supported language or the default. This value controls interface text, the document language and the page title.
+Initial preferences are configured in `src/initial-settings.ts`: language, verification method (PIN) and per-method configuration (initial PIN `1234`). Saved user preferences take precedence. `defaultLanguage` in `src/i18n.ts` reads that shared initial language. Vite uses it to populate the `lang` attribute and translated title in both `index.html` and `settings.html` during development and production builds. Once the application loads, `LanguageProvider` uses a single `language` value: the user's saved supported language or the default. This value controls interface text, the document language and the page title.
 
-Settings groups use `SettingsBlock` for a shared gray background, heading and explanatory text.
+`Block` is the shared visual container used by settings and the main screen's PIN keypad and TOTP field. It provides a border, rounded corners, `tone="subtle"` (gray, default) or `tone="surface"` (white), and `padding="sm" | "md" | "lg"` (16, 20 or 24 px; default 24). Both `title` and `description` are optional; the block renders only the provided text and automatically connects it to accessibility labels. With neither provided it renders only the content. It also accepts normal div attributes, except the native tooltip `title`, which is used for the visible heading. Settings groups use `SettingsBlock`, a thin wrapper that delegates heading, description and styling to `Block`. The QR setup uses the surface tone; the PIN keypad uses small padding.
+
+`Pill` is the shared visual foundation for `ActionButton` and `Message`: padding, font size and weight, rounded shape, shadow and icon placement. It renders a button for actions and a div for messages, which keep their `alert` or `status` roles. Messages use their own success/error colors and size to their content.
+
+Use the shared `Columns` and `Column` components for layouts with up to two equal columns. A plain `<Column>` occupies one column; `<Column span={2}>` spans both. A single one-column item is placed in the left column, leaving the right column empty. The layout stacks into one column when there is not enough room for two `size-column-min` widths plus the gap. All settings blocks occupy the left column, with language and question settings stacked vertically in General. This layout is independent of tabs and settings content.
+
+```tsx
+import Columns, { Column } from './Columns'
+
+;<Columns>
+  <Column>Left column</Column>
+  <Column>Right column</Column>
+  <Column span={2}>Full-width row</Column>
+</Columns>
+```
 
 ## Design tokens
 
