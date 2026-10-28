@@ -52,7 +52,7 @@ export default function VisitForm({
           value={reason}
           onChange={(event) => onReasonChange(event.target.value)}
           placeholder={t('reasonPlaceholder', { count: minimumWords })}
-          rows={4}
+          rows={3}
           maxLength={3000}
           disabled={busy}
           required

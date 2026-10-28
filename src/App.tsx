@@ -58,7 +58,7 @@ export default function App() {
   if (sites && !loadError && !site) return null
 
   return (
-    <main>
+    <main className="visit-page">
       <Panel
         aria-labelledby="question"
         error={loadError || (showVisitForm ? error : undefined)}
@@ -71,6 +71,7 @@ export default function App() {
             ) : (
               <FormActions
                 form="visit-form"
+                submitFirst
                 busy={busy}
                 onCancel={closeWindow}
                 cancelLabel={t('closeWindow')}

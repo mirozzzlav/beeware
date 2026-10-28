@@ -175,6 +175,14 @@ button:disabled {
   background: var(--color-success-surface);
   color: var(--color-success-text);
 }
+.message[data-appearance='plain'] {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--palette-transparent);
+  box-shadow: none;
+}
 
 .settings-page {
   display: flex;
@@ -419,12 +427,15 @@ a:focus-visible {
 .panel-footer p {
   margin-bottom: 0;
 }
+.panel-feedback {
+  padding-bottom: var(--space-16);
+}
 .panel-actions {
   display: flex;
   align-items: center;
   gap: var(--space-12);
   flex-wrap: wrap;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 a {
   color: var(--color-link);
@@ -676,4 +687,27 @@ a {
   font-size: var(--font-size-small);
   line-height: var(--line-height-body);
   margin-bottom: 0;
+}
+
+.visit-page {
+  padding-block: var(--space-16);
+}
+.visit-page .panel {
+  padding-block: var(--space-24);
+}
+.visit-page .panel-footer {
+  margin-top: var(--space-16);
+  margin-bottom: calc(-1 * var(--space-24));
+  padding-block: var(--space-16);
+}
+.visit-page textarea {
+  min-height: calc(var(--size-textarea) - var(--space-24));
+  padding-block: var(--space-12);
+}
+.visit-page .visit-question + textarea {
+  margin-bottom: var(--space-16);
+}
+.visit-page .pin-keypad button {
+  min-height: var(--size-pin-key);
+  padding-block: var(--space-8);
 }

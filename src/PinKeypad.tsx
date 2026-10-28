@@ -44,22 +44,22 @@ export default function PinKeypad({
         <button
           type="button"
           className="secondary pin-keypad-action"
-          aria-label={t('pinBackspace')}
-          title={t('pinBackspace')}
-          disabled={disabled || !value}
-          onClick={() => onChange(value.slice(0, -1))}
-        >
-          <Icon name="backspace" />
-        </button>
-        <button
-          type="button"
-          className="secondary pin-keypad-action"
           aria-label={t('pinClear')}
           title={t('pinClear')}
           disabled={disabled || !value}
           onClick={() => onChange('')}
         >
           <Icon name="trash" />
+        </button>
+        <button
+          type="button"
+          className="secondary pin-keypad-action"
+          aria-label={t('pinBackspace')}
+          title={t('pinBackspace')}
+          disabled={disabled || !value}
+          onClick={() => onChange(value.slice(0, -1))}
+        >
+          <Icon name="backspace" />
         </button>
       </div>
     </Block>

@@ -1,16 +1,17 @@
 import tokens from './tokens.json'
 
-const alphabet = Array.from(
-  '0123456789アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン',
-)
+const alphabet = ['0', '1']
 const random = (min: number, max: number) => min + Math.random() * (max - min)
 const randomGlyph = () => alphabet[Math.floor(Math.random() * alphabet.length)]
 const lineHeight = Number.parseFloat(tokens['line-height-matrix'])
+const fontSize = Number.parseFloat(tokens['font-size-small'])
+const maxStreamScale = 3
 
 interface Stream {
   x: number
   head: number
   speed: number
+  scale: number
   glyphs: string[]
   brightness: number
   nextMutation: number
@@ -21,6 +22,7 @@ function createStream(x: number, head: number): Stream {
     x,
     head,
     speed: random(24, 76),
+    scale: random(0.65, maxStreamScale),
     glyphs: Array.from({ length: Math.floor(random(12, 34)) }, randomGlyph),
     brightness: random(0.45, 0.95),
     nextMutation: 0,
@@ -41,29 +43,33 @@ export function startMatrixAnimation(canvas: HTMLCanvasElement): () => void {
   function draw(time: number, elapsed: number) {
     if (!context) return
     context.clearRect(0, 0, width, height)
-    context.font = `${tokens['font-weight-regular']} ${tokens['font-size-small']} ${tokens['font-family-mono']}`
     context.textAlign = 'center'
 
     for (let index = 0; index < streams.length; index++) {
       let stream = streams[index]
       stream.head += stream.speed * elapsed
-      if (stream.head - stream.glyphs.length * lineHeight > height) {
+      if (
+        stream.head - stream.glyphs.length * lineHeight * stream.scale >
+        height
+      ) {
         stream = createStream(stream.x, -random(30, 450))
         streams[index] = stream
       }
+      const streamLineHeight = lineHeight * stream.scale
+      context.font = `${tokens['font-weight-regular']} ${fontSize * stream.scale}px ${tokens['font-family-mono']}`
       if (time >= stream.nextMutation) {
         stream.glyphs[Math.floor(Math.random() * stream.glyphs.length)] =
           randomGlyph()
         stream.nextMutation = time + random(100, 420)
       }
       stream.glyphs.forEach((glyph, row) => {
-        const y = stream.head - row * lineHeight
-        if (y < -lineHeight || y > height + lineHeight) return
+        const y = stream.head - row * streamLineHeight
+        if (y < -streamLineHeight || y > height + streamLineHeight) return
         const opacity =
           stream.brightness * (1 - row / stream.glyphs.length) ** 1.5
         context.globalAlpha = opacity
         context.fillStyle =
-          row === 0 ? tokens['palette-green-200'] : tokens['palette-green-400']
+          row === 0 ? tokens['palette-gray-900'] : tokens['palette-gray-400']
         context.fillText(glyph, stream.x, y)
       })
     }
@@ -78,8 +84,17 @@ export function startMatrixAnimation(canvas: HTMLCanvasElement): () => void {
     canvas.width = Math.round(width * scale)
     canvas.height = Math.round(height * scale)
     context.setTransform(scale, 0, 0, scale, 0, 0)
+    context.font = `${tokens['font-weight-regular']} ${fontSize * maxStreamScale}px ${tokens['font-family-mono']}`
+    const columnWidth =
+      Math.ceil(
+        Math.max(...alphabet.map((glyph) => context.measureText(glyph).width)),
+      ) + Number.parseFloat(tokens['space-8'])
     streams = []
-    for (let x = random(8, 18); x < width; x += random(16, 28)) {
+    for (
+      let x = columnWidth / 2;
+      x <= width - columnWidth / 2;
+      x += columnWidth
+    ) {
       streams.push(createStream(x, random(-height * 0.4, height * 1.35)))
     }
     draw(performance.now(), 0)

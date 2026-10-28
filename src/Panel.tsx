@@ -27,11 +27,17 @@ export default function Panel({
       {children}
       {(error || actions || status) && (
         <footer className="panel-footer">
-          {error ? (
-            <ErrorMessage>{error}</ErrorMessage>
-          ) : status ? (
-            <Message variant="success">{status}</Message>
-          ) : null}
+          {(error || status) && (
+            <div className="panel-feedback">
+              {error ? (
+                <ErrorMessage appearance="plain">{error}</ErrorMessage>
+              ) : status ? (
+                <Message variant="success" appearance="plain">
+                  {status}
+                </Message>
+              ) : null}
+            </div>
+          )}
           {actions && <div className="panel-actions">{actions}</div>}
         </footer>
       )}
