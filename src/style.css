@@ -670,6 +670,9 @@ a {
   min-height: calc(var(--size-pin-key) + var(--space-8));
   font-size: var(--font-size-pin-digit);
 }
+.pin-keypad button:hover:not(:disabled) {
+  background: var(--palette-blue-200);
+}
 .pin-keypad-action {
   display: flex;
   align-items: center;
