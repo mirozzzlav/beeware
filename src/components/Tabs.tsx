@@ -1,10 +1,4 @@
-import {
-  useId,
-  useRef,
-  useState,
-  type KeyboardEvent,
-  type ReactNode,
-} from 'react'
+import { useId, useRef, type KeyboardEvent, type ReactNode } from 'react'
 
 interface Tab {
   id: string
@@ -16,17 +10,25 @@ export default function Tabs({
   items,
   label,
   disabled = false,
+  selected,
+  onChange,
 }: {
   items: Tab[]
   label: string
   disabled?: boolean
+  selected: string
+  onChange: (id: string) => void
 }) {
   const prefix = useId()
-  const [selected, setSelected] = useState(items[0]?.id)
   const active = items.some((item) => item.id === selected)
     ? selected
     : items[0]?.id
   const tabRefs = useRef(new Map<string, HTMLButtonElement>())
+
+  function selectTab(id: string) {
+    if (disabled || id === active) return
+    onChange(id)
+  }
 
   function moveFocus(event: KeyboardEvent<HTMLButtonElement>, index: number) {
     if (disabled) return
@@ -48,7 +50,7 @@ export default function Tabs({
         return
     }
     event.preventDefault()
-    setSelected(items[next].id)
+    selectTab(items[next].id)
     tabRefs.current.get(items[next].id)?.focus()
   }
 
@@ -69,7 +71,7 @@ export default function Tabs({
             aria-controls={`${prefix}-panel-${item.id}`}
             tabIndex={active === item.id ? 0 : -1}
             disabled={disabled}
-            onClick={() => setSelected(item.id)}
+            onClick={() => selectTab(item.id)}
             onKeyDown={(event) => moveFocus(event, index)}
           >
             {item.label}

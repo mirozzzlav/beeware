@@ -1,6 +1,7 @@
 import type { DomainRule } from './policy'
 import DomainRuleEditor from './DomainRuleEditor'
 import Icon from '../../components/Icon'
+import ActionButton from '../../components/ActionButton'
 import { useLanguage } from '../language/use-language'
 
 type DomainRulesFieldsetProps = {
@@ -31,10 +32,14 @@ export default function DomainRulesFieldset({
           onRemove={() => onRemove(row.id)}
         />
       ))}
-      <button className="secondary add-domain" type="button" onClick={onAdd}>
-        <Icon name="plus" className="settings-add-icon" />
+      <ActionButton
+        size="normal"
+        className="add-domain"
+        icon={<Icon name="plus" className="settings-add-icon" />}
+        onClick={onAdd}
+      >
         {t('addDomain')}
-      </button>
+      </ActionButton>
     </fieldset>
   )
 }

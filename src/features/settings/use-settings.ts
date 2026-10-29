@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { createDraft, normalizeDrafts } from '../domains/domain-draft'
+import { createDraft } from '../domains/domain-draft'
 import {
   isExtension,
   readLanguage,
@@ -10,11 +10,11 @@ import {
   saveVisitQuestionEnabled,
   saveVisitQuestionText,
 } from './settings-store'
-import { normalizeVerification } from '../verification/verification'
 import { useCloseTab } from '../visit/use-close-tab'
 import { asMessageError, MessageError, type Language } from '../language/i18n'
 import { useLanguage } from '../language/use-language'
 import { useSettingsDraft } from './use-settings-draft'
+import { validateSettings } from './validate-settings'
 
 export function useSettings() {
   const { setLanguage, t } = useLanguage()
@@ -24,6 +24,7 @@ export function useSettings() {
     'loading',
   )
   const [busy, setBusy] = useState(false)
+  const [activeTab, setActiveTab] = useState('general')
   const [feedback, setFeedback] = useState<{
     revision: number
     error?: MessageError
@@ -60,21 +61,15 @@ export function useSettings() {
   async function save() {
     if (busy || loadStatus !== 'ready') return
     setFeedback({ revision })
+    const result = validateSettings(values)
+    if (!result.valid) {
+      setActiveTab(result.tab)
+      setFeedback({ revision, error: result.error })
+      return
+    }
+    const normalized = result.values
+    const sites = normalized.rows
     try {
-      if (
-        values.visitQuestionEnabled &&
-        values.visitQuestionText !== null &&
-        !values.visitQuestionText.trim()
-      )
-        throw new MessageError('visitQuestionRequired')
-      const sites = normalizeDrafts(values.rows)
-      const verification = normalizeVerification(values.verification)
-      const normalized = {
-        ...values,
-        verification,
-        visitQuestionText: values.visitQuestionText?.trim() || null,
-        rows: sites.map((site, index) => ({ ...values.rows[index], ...site })),
-      }
       setBusy(true)
       // Request access directly from the submit gesture before any async work.
       if (isExtension && sites.length > 0) {
@@ -108,6 +103,11 @@ export function useSettings() {
     setLanguage(value)
   }
 
+  function changeTab(id: string) {
+    setActiveTab(id)
+    setFeedback({ revision })
+  }
+
   const error = currentFeedback?.error
   return {
     ...values,
@@ -117,6 +117,8 @@ export function useSettings() {
     busy,
     error: error ? t(error.key, error.params) : '',
     saved: currentFeedback?.saved ?? false,
+    activeTab,
+    changeTab,
     changeVisitQuestionText: draft.changeVisitQuestionText,
     changeVisitQuestionEnabled: draft.changeVisitQuestionEnabled,
     changeVerification: draft.changeVerification,

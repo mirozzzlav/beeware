@@ -21,6 +21,8 @@ export default function Settings() {
     busy,
     error,
     saved,
+    activeTab,
+    changeTab,
     verification,
     visitQuestionEnabled,
     visitQuestionText,
@@ -57,6 +59,8 @@ export default function Settings() {
           <Tabs
             label={t('settings')}
             disabled={busy}
+            selected={activeTab}
+            onChange={changeTab}
             items={[
               {
                 id: 'general',

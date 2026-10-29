@@ -15,7 +15,8 @@ export default function Switch({
 }: SwitchProps) {
   const id = useId()
   return (
-    <label className="switch-field" htmlFor={id}>
+    <div className="switch-field">
+      <label htmlFor={id}>{label}</label>
       <input
         id={id}
         className="switch-input"
@@ -25,7 +26,6 @@ export default function Switch({
         disabled={disabled}
         onChange={(event) => onChange(event.target.checked)}
       />
-      <span>{label}</span>
-    </label>
+    </div>
   )
 }

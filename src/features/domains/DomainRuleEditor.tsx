@@ -1,6 +1,8 @@
 import { inferAppName, type DomainRule } from './policy'
 import TextField from '../../components/TextField'
 import Icon from '../../components/Icon'
+import ActionButton from '../../components/ActionButton'
+import Block from '../../components/Block'
 import { useLanguage } from '../language/use-language'
 
 interface DomainRuleEditorProps {
@@ -16,9 +18,10 @@ export default function DomainRuleEditor({
 }: DomainRuleEditorProps) {
   const { t } = useLanguage()
   return (
-    <div className="domain-row">
+    <Block className="domain-row" tone="surface">
       <div className="domain-fields">
         <TextField
+          size="normal"
           label={t('domain')}
           value={rule.domain}
           onChange={(event) => onChange('domain', event.target.value)}
@@ -28,6 +31,7 @@ export default function DomainRuleEditor({
           required
         />
         <TextField
+          size="normal"
           label={t('appName')}
           value={rule.name}
           onChange={(event) => onChange('name', event.target.value)}
@@ -35,9 +39,10 @@ export default function DomainRuleEditor({
           maxLength={80}
         />
       </div>
-      <button
-        type="button"
-        className="secondary remove-domain"
+      <ActionButton
+        size="compact"
+        className="remove-domain"
+        icon={<Icon name="trash" />}
         aria-label={
           rule.domain
             ? t('removeDomain', { domain: rule.domain })
@@ -45,9 +50,8 @@ export default function DomainRuleEditor({
         }
         onClick={onRemove}
       >
-        <Icon name="trash" className="settings-trash-icon" />
-        <span className="remove-domain-label">{t('delete')}</span>
-      </button>
-    </div>
+        {t('delete')}
+      </ActionButton>
+    </Block>
   )
 }

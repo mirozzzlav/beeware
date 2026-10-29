@@ -26,8 +26,7 @@ export default function VerificationSettings({
       description={t('verificationHelp')}
     >
       <SelectField
-        label={t('verificationMethod')}
-        hideLabel
+        label={t('chooseMethod')}
         value={value.mode}
         disabled={disabled}
         onChange={(event) => {

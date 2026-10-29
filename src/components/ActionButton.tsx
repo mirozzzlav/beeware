@@ -1,11 +1,13 @@
 import type { ComponentProps, ReactNode } from 'react'
 import { tokenVar, type ColorToken } from '../design-tokens'
 import Pill from './Pill'
+import type { ControlSize } from './control-size'
 
 type ActionButtonProps = Omit<ComponentProps<'button'>, 'color'> & {
   color?: ColorToken
   icon?: ReactNode
   appearance?: 'outline' | 'filled'
+  size?: ControlSize
 }
 
 export default function ActionButton({
@@ -13,6 +15,7 @@ export default function ActionButton({
   color,
   icon,
   appearance = 'outline',
+  size = 'normal',
   className,
   style,
   type = 'button',
@@ -24,8 +27,9 @@ export default function ActionButton({
       as="button"
       icon={icon}
       type={type}
-      className={`action-button ${className ?? ''}`.trim()}
+      className={`control action-button ${className ?? ''}`.trim()}
       data-appearance={appearance}
+      data-size={size}
       style={{
         ...style,
         ...(color && {

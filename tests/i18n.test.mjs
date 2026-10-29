@@ -49,7 +49,7 @@ test('interpolates messages without interpreting user values as templates', () =
   )
   assert.equal(
     translate('en', 'removeDomain', { domain: '{count}' }),
-    'Remove {count}',
+    'Delete {count}',
   )
 })
 
