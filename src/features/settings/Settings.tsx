@@ -1,7 +1,7 @@
 import { useSettings } from './use-settings'
 import DomainRulesFieldset from '../domains/DomainRulesFieldset'
 import VerificationSettings from '../verification/VerificationSettings'
-import FormFeedback from '../../components/FormFeedback'
+import FormFooter from '../../components/FormFooter'
 import Icon from '../../components/Icon'
 import FormActions from '../../components/FormActions'
 import LanguageSettings from './LanguageSettings'
@@ -113,13 +113,13 @@ export default function Settings() {
           />
         ) : null}
       </form>
-      <footer className="settings-footer">
-        <FormFeedback
-          error={error}
-          status={saved ? t('settingsSaved') : null}
-        />
-        {!loadFailed && !loading && (
-          <div className="panel-actions">
+      <FormFooter
+        className="settings-footer"
+        error={error}
+        status={saved ? t('settingsSaved') : null}
+        actions={
+          !loadFailed &&
+          !loading && (
             <FormActions
               form="settings-form"
               submitFirst
@@ -133,9 +133,9 @@ export default function Settings() {
               submitColor="color-action-success"
               submitAppearance="filled"
             />
-          </div>
-        )}
-      </footer>
+          )
+        }
+      />
     </main>
   )
 }

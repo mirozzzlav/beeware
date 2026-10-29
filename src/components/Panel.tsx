@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import FormFeedback from './FormFeedback'
+import FormFooter from './FormFooter'
 
 type PanelProps = {
   children: ReactNode
@@ -25,14 +25,12 @@ export default function Panel({
     >
       {children}
       {(error || actions || status) && (
-        <footer className="panel-footer">
-          {(error || status) && (
-            <div className="panel-feedback">
-              <FormFeedback error={error} status={status} appearance="plain" />
-            </div>
-          )}
-          {actions && <div className="panel-actions">{actions}</div>}
-        </footer>
+        <FormFooter
+          className="panel-footer"
+          error={error}
+          status={status}
+          actions={actions}
+        />
       )}
     </section>
   )

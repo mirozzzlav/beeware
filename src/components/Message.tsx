@@ -1,26 +1,21 @@
 import type { ReactNode } from 'react'
 import Icon from './Icon'
-import Pill from './Pill'
 
 type MessageProps = {
   children: ReactNode
   variant: 'error' | 'success'
-  appearance?: 'plain' | 'outlined'
 }
 
-export default function Message({
-  children,
-  variant,
-  appearance = 'outlined',
-}: MessageProps) {
+export default function Message({ children, variant }: MessageProps) {
   return (
-    <Pill
+    <div
       className={`message message-${variant}`}
-      data-appearance={appearance}
       role={variant === 'error' ? 'alert' : 'status'}
-      icon={<Icon name={variant === 'error' ? 'error' : 'submit'} />}
     >
-      {children}
-    </Pill>
+      <span className="message-icon" aria-hidden="true">
+        <Icon name={variant === 'error' ? 'error' : 'submit'} />
+      </span>
+      <span className="message-content">{children}</span>
+    </div>
   )
 }
