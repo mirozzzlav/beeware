@@ -214,6 +214,20 @@ Base tokens (`palette-*`, `font-*`, `space-*` and `radius-*`) define the palette
 
 In CSS, use declarations such as `color: var(--color-text)` and `font-size: var(--font-size-small)`. For React styles, use the type-checked `tokenVar('color-action-success')` helper from `src/design-tokens.ts`; CSS variables also support theme overrides. For canvas, QR codes and other APIs that require concrete values, import base tokens from `tokens.json`, for example `tokens['palette-green-400']`. Semantic tokens contain CSS references, so do not pass them directly to these APIs.
 
-The Vite plugin in `design-tokens.plugin.ts` generates CSS variables from the tokens. The responsive `@media (--compact)` query uses the `breakpoint-compact` token. The standalone icon in `public/icon.svg` embeds its own colors and stroke widths so it can be opened or edited independently. Do not edit generated values in `dist` manually.
+The Vite plugin in `design-tokens.plugin.ts` generates CSS variables from the tokens and expands named media queries. Breakpoints follow [Tailwind CSS defaults](https://tailwindcss.com/docs/responsive-design):
+
+| Name  | Minimum width | Equivalent at the default browser font size |
+| ----- | ------------- | ------------------------------------------- |
+| `sm`  | `40rem`       | 640px                                       |
+| `md`  | `48rem`       | 768px                                       |
+| `lg`  | `64rem`       | 1024px                                      |
+| `xl`  | `80rem`       | 1280px                                      |
+| `2xl` | `96rem`       | 1536px                                      |
+
+Use `@media (--md)` for widths at or above `md`, and `@media (--max-md)` for widths strictly below `md`. All five breakpoints support both forms, without gaps or overlapping boundaries. Values live in the `breakpoint-*` tokens; Tailwind is not a dependency.
+
+The visit page uses a card on mobile, tablet and desktop. Below `md`, the card sits at the top with 24px of vertical page padding and 8px of horizontal padding, and stays horizontally centered. From `md` upward, it is centered vertically as well. Compact spacing and stacked domain rows apply below `sm`. The remaining breakpoints are available for future layout changes.
+
+The standalone icon in `public/icon.svg` embeds its own colors and stroke widths so it can be opened or edited independently. Do not edit generated values in `dist` manually.
 
 `npm run lint` checks for hardcoded design values in React and TypeScript and verifies token usage in CSS. Run `npm run check:tokens` for the standalone CSS check; it also detects missing and circular token references. Structural values such as `0`, `100%`, SVG coordinates and inherited styles remain allowed.

@@ -24,10 +24,20 @@ export default function designTokens(): Plugin {
     },
     transform(source, id) {
       if (id.split('?')[0].endsWith('.css')) {
-        return source.replaceAll(
-          '@media (--compact)',
-          `@media (max-width: ${tokens['breakpoint-compact']})`,
-        )
+        for (const [name, width] of Object.entries(tokens)) {
+          if (!name.startsWith('breakpoint-')) continue
+          const breakpoint = name.slice('breakpoint-'.length)
+          source = source
+            .replaceAll(
+              `@media (--${breakpoint})`,
+              `@media (width >= ${width})`,
+            )
+            .replaceAll(
+              `@media (--max-${breakpoint})`,
+              `@media (width < ${width})`,
+            )
+        }
+        return source
       }
     },
   }
