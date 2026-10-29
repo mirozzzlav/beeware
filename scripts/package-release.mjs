@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process'
+import { publishArchives } from './publish-archives.mjs'
 import {
   cpSync,
   existsSync,
@@ -6,7 +7,6 @@ import {
   mkdtempSync,
   readdirSync,
   readFileSync,
-  renameSync,
   rmSync,
 } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -112,24 +112,9 @@ function packageRelease() {
     )
     run('zip', ['-q', '-X', '-r', path.join(staging, archives[1]), '.'], source)
 
-    // Keep the previous release until both new archives have been created.
-    mkdirSync(output, { recursive: true })
-    for (const entry of readdirSync(output, { withFileTypes: true })) {
-      if (
-        entry.isFile() &&
-        entry.name.startsWith(`${name}-`) &&
-        entry.name.endsWith('.zip')
-      ) {
-        rmSync(path.join(output, entry.name))
-      }
-    }
-    for (const archive of archives) {
-      // Copy first: the temporary directory may be on another filesystem.
-      const pending = path.join(output, `${archive}.tmp`)
-      cpSync(path.join(staging, archive), pending)
-      renameSync(pending, path.join(output, archive))
+    publishArchives(staging, output, name, archives)
+    for (const archive of archives)
       console.log(`Created ${path.join(output, archive)}`)
-    }
   } finally {
     rmSync(staging, { recursive: true, force: true })
   }
