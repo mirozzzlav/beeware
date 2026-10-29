@@ -167,11 +167,17 @@ button:disabled {
   padding: 0;
   background: var(--color-surface);
 }
+.settings-container {
+  width: 100%;
+  max-width: var(--size-settings-content);
+  margin-inline: 0 auto;
+  padding-inline: var(--space-36);
+}
 .settings-header {
   position: sticky;
   top: 0;
   z-index: 1;
-  padding: var(--space-28) var(--space-36);
+  padding-block: var(--space-28);
   border-bottom: var(--border-width-thin) solid var(--color-border-button);
   background: var(--color-surface);
   box-shadow: var(--shadow-settings-header);
@@ -183,7 +189,7 @@ button:disabled {
 .settings-content {
   flex: 1;
   min-width: 0;
-  padding: var(--space-28) var(--space-36);
+  padding-block: var(--space-28);
 }
 .tabs-list {
   display: flex;
@@ -214,28 +220,6 @@ button:disabled {
   outline: var(--outline-focus);
   outline-offset: var(--border-width-focus);
 }
-.columns {
-  display: grid;
-  /* Keep two equal tracks, including an empty second column, when space allows. */
-  grid-template-columns: repeat(
-    auto-fill,
-    minmax(
-      min(
-        100%,
-        max(var(--size-column-min), calc((100% - var(--space-24)) / 2))
-      ),
-      1fr
-    )
-  );
-  align-items: start;
-  gap: var(--space-24);
-}
-.column {
-  min-width: 0;
-}
-.column[data-span='2'] {
-  grid-column: 1 / -1;
-}
 .block-heading,
 .block-content {
   min-width: 0;
@@ -253,9 +237,9 @@ button:disabled {
   position: sticky;
   bottom: 0;
   z-index: 1;
-  padding: var(--space-20) var(--space-36);
+  padding-block: var(--space-20);
 }
-.settings-content .column > .settings-block:last-child {
+.settings-section > .settings-block:last-child {
   margin-bottom: 0;
 }
 .settings-footer .panel-actions {
@@ -437,7 +421,18 @@ a {
   .settings-header,
   .settings-content,
   .settings-footer {
-    padding: var(--space-16);
+    padding-block: var(--space-16);
+  }
+  .settings-container {
+    padding-inline: var(--space-16);
+  }
+  .settings-content .tabs-list {
+    gap: var(--space-4);
+    margin-bottom: var(--space-16);
+  }
+  .settings-content .tabs-list button {
+    padding: var(--space-10) var(--space-12);
+    font-size: var(--font-size-small);
   }
   .panel {
     padding: var(--space-24);
@@ -461,6 +456,8 @@ a {
   }
   .domain-fields {
     width: 100%;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--space-12);
   }
   .remove-domain {
     margin-top: 0;

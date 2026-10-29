@@ -38,11 +38,13 @@ export default function Settings() {
   return (
     <main className="settings-page" aria-labelledby="settings-title">
       <header className="settings-header">
-        <h1 id="settings-title">{t('settings')}</h1>
+        <div className="settings-container">
+          <h1 id="settings-title">{t('settings')}</h1>
+        </div>
       </header>
       <form
         id="settings-form"
-        className="settings-content"
+        className="settings-content settings-container"
         noValidate
         onSubmit={(event) => {
           event.preventDefault()
@@ -115,6 +117,7 @@ export default function Settings() {
       </form>
       <FormFooter
         className="settings-footer"
+        contentClassName="settings-container"
         error={error}
         status={saved ? t('settingsSaved') : null}
         actions={

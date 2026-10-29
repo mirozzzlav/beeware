@@ -194,17 +194,7 @@ Initial preferences are configured in `src/features/settings/initial-settings.ts
 
 `Pill` provides the rounded shape, padding, shadow and icon placement for `ActionButton`. `Message` renders error and success feedback as plain text with an icon and the appropriate `alert` or `status` role. It has no pill wrapper, background or border. Footer feedback and TOTP errors use this same component. `FormFooter` provides the shared gray footer, feedback and action layout for the main application and settings.
 
-Use the shared `Columns` and `Column` components for layouts with up to two equal columns. A plain `<Column>` occupies one column; `<Column span={2}>` spans both. A single one-column item is placed in the left column, leaving the right column empty. The layout stacks into one column when there is not enough room for two `size-column-min` widths plus the gap. All settings blocks occupy the left column, with language and question settings stacked vertically in General. This layout is independent of tabs and settings content.
-
-```tsx
-import Columns, { Column } from './components/Columns'
-
-;<Columns>
-  <Column>Left column</Column>
-  <Column>Right column</Column>
-  <Column span={2}>Full-width row</Column>
-</Columns>
-```
+Settings use a single column inside a left-aligned wrapper with a maximum width of 768px (`size-settings-content`). The header title and footer actions align with the content through the same `settings-container` class. Blocks fill the available width, with language and question settings stacked vertically in General. Horizontal padding is 36px, reduced to 16px below `sm`.
 
 ## Design tokens
 
