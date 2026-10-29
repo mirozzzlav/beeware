@@ -368,6 +368,9 @@ a:focus-visible {
   border-radius: var(--radius-small);
   box-shadow: none;
 }
+.remove-domain-label {
+  display: none;
+}
 .add-domain {
   display: inline-flex;
   align-items: center;
@@ -461,6 +464,11 @@ a {
   }
   .remove-domain {
     margin-top: 0;
+    gap: var(--space-4);
+  }
+  .remove-domain-label {
+    display: inline;
+    font-size: var(--font-size-small);
   }
 }
 

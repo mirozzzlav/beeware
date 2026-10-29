@@ -46,6 +46,7 @@ export default function DomainRuleEditor({
         onClick={onRemove}
       >
         <Icon name="trash" className="settings-trash-icon" />
+        <span className="remove-domain-label">{t('delete')}</span>
       </button>
     </div>
   )
