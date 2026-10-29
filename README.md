@@ -151,7 +151,7 @@ Shared UI lives in `src/components/`. Components with their own styles or assets
 - `src/components/FormField.tsx`, `src/components/SelectField.tsx` — shared wrapper for labeled fields and a select field supporting native HTML attributes.
 - `src/components/FormActions.tsx` — cancel and submit buttons shared by both forms; accepts labels, icons, processing state and a form ID.
 - `src/components/FormFeedback.tsx` — shared error/success feedback with error priority and preserved alert/status roles.
-- `src/components/MatrixBackground/MatrixBackground.tsx`, `src/components/MatrixBackground/MatrixBackground.css`, `src/components/MatrixBackground/matrix-animation.ts` — reusable background component, its styles and standalone canvas renderer; follows its container size and cleans up animation, resize observation and event listeners.
+- `src/components/MatrixBackground/MatrixBackground.tsx`, `src/components/MatrixBackground/MatrixBackground.css`, `src/components/MatrixBackground/matrix-renderer.ts` — reusable responsive binary background, its styles and standalone canvas renderer; follows its container size and cleans up animation, resize observation and event listeners.
 - `src/features/settings/settings-store.ts` — settings persistence.
 - `src/features/verification/totp/totp.ts` — key generation, provisioning URI and TOTP verification.
 - `src/features/verification/totp/use-totp-setup.ts` — loads the shared secret and generates its QR code with cleanup on unmount. A QR failure preserves the manual key; a secret-loading failure prevents setup. `TotpSettings.tsx` and `TotpSetup.tsx` render the resulting loading, error and ready states.
@@ -167,7 +167,7 @@ Shared UI lives in `src/components/`. Components with their own styles or assets
 
 The extension identifier is generated as `@${name}.wondercules` from the `name` field in `package.json` and written to `browser_specific_settings.gecko.id`. Changing the technical package name changes the extension's identity in Firefox. Keep it unchanged after publication, including in subsequent versions.
 
-## Reusing the animated background
+## Reusing the responsive background
 
 Place `MatrixBackground` inside a parent with the `matrix-container` class. The parent determines its dimensions through its content or your own layout styles; the background fills that area behind the content and does not intercept clicks. It also inherits the parent's rounded corners.
 
@@ -180,7 +180,7 @@ import MatrixBackground from './components/MatrixBackground/MatrixBackground'
 </section>
 ```
 
-The component imports its own CSS and uses the project's design tokens and bundled font. `ResizeObserver` keeps the canvas in sync when the container changes size. Each instance has its own animation state. The visit page places it directly inside `#root`, which already provides positioning and an isolated stacking context.
+The component imports its own CSS and uses the project's design tokens and bundled font. Below `md` (768px), it is hidden and skips canvas rendering and font loading. Between `md` and `lg` (1024px), it draws static zeros and ones. From `lg` upward, it runs the falling-digit animation at up to 30 frames per second, pausing when the document is hidden. Reduced-motion preferences keep the desktop background static. Media query listeners switch modes when the viewport or motion preference changes, cleaning up the previous renderer. `ResizeObserver` keeps the canvas in sync when the container changes size. Each instance has its own layout. The visit page places it directly inside `#root`, which already provides positioning and an isolated stacking context.
 
 ## Languages and translations
 

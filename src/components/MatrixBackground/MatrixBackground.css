@@ -19,3 +19,9 @@
     var(--palette-black) 80%
   );
 }
+
+@media (--max-md) {
+  .matrix-background {
+    display: none;
+  }
+}

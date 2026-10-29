@@ -1,5 +1,9 @@
-import tokens from '../../tokens.json'
-import matrixFontUrl from './assets/DSEG7Classic-Regular.woff2'
+import tokens from '../../tokens.json' with { type: 'json' }
+
+const matrixFontUrl = new URL(
+  './assets/DSEG7Classic-Regular.woff2',
+  import.meta.url,
+).href
 
 const alphabet = ['0', '1']
 const bluePalette = [
@@ -50,11 +54,13 @@ function createDigit(column: Column, y: number): Digit {
   }
 }
 
-export function startMatrixAnimation(canvas: HTMLCanvasElement): () => void {
+function renderMatrixCanvas(
+  canvas: HTMLCanvasElement,
+  animated: boolean,
+): () => void {
   const context = canvas.getContext('2d')
   if (!context) return () => {}
 
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
   let width = 0
   let height = 0
   let pixelRatio = 0
@@ -70,8 +76,9 @@ export function startMatrixAnimation(canvas: HTMLCanvasElement): () => void {
       const column = columns[Math.floor(Math.random() * columns.length)]
       if (!column) return
       const { x, scale, halfWidth } = column
-      const gap = glyphGap(scale)
-      const y = staticPosition ? random(0, height) : -gap
+      const y = staticPosition
+        ? random(fontSize * scale, height)
+        : -glyphGap(scale)
       if (
         digits.some((digit) => {
           const clearance = glyphGap(Math.max(scale, digit.scale))
@@ -89,12 +96,12 @@ export function startMatrixAnimation(canvas: HTMLCanvasElement): () => void {
     }
   }
 
-  function draw(elapsed: number) {
+  function draw(elapsed = 0) {
     if (!context) return
     context.clearRect(0, 0, width, height)
     context.textAlign = 'center'
 
-    if (!reducedMotion.matches) {
+    if (animated) {
       spawnRemaining -= elapsed
       if (spawnRemaining <= 0) {
         spawnRemaining += random(0.12, 0.3)
@@ -102,9 +109,8 @@ export function startMatrixAnimation(canvas: HTMLCanvasElement): () => void {
       }
     }
 
-    const fallElapsed = reducedMotion.matches ? 0 : elapsed
     for (const digit of digits) {
-      digit.y += digit.speed * fallElapsed
+      digit.y += digit.speed * elapsed
       context.font = `${tokens['font-weight-regular']} ${fontSize * digit.scale}px ${matrixFontFamily}`
       context.globalAlpha = digit.brightness
       context.fillStyle = digit.color
@@ -155,11 +161,14 @@ export function startMatrixAnimation(canvas: HTMLCanvasElement): () => void {
       columnStart += columnWidth
     }
     spawnRemaining = random(0.12, 0.3)
-    if (reducedMotion.matches) {
-      const count = columns.length
+    if (!animated) {
+      // Fill the canvas immediately, like a snapshot of the running animation.
+      const count = Math.ceil(
+        (width * height) / (lineHeight * maxDigitScale) ** 2,
+      )
       for (let index = 0; index < count; index++) spawnDigit(true)
     }
-    draw(0)
+    draw()
   }
 
   function resizeIfNeeded() {
@@ -185,15 +194,13 @@ export function startMatrixAnimation(canvas: HTMLCanvasElement): () => void {
   function updateAnimation() {
     window.cancelAnimationFrame(frame)
     previousTime = 0
-    if (!document.hidden && !reducedMotion.matches) {
+    if (!disposed && !document.hidden) {
       frame = window.requestAnimationFrame(animate)
-    } else if (reducedMotion.matches) {
-      draw(0)
     }
   }
 
   resize()
-  updateAnimation()
+  if (animated) updateAnimation()
   matrixFont ??= new FontFace(
     tokens['font-family-matrix'],
     `url("${matrixFontUrl}")`,
@@ -210,14 +217,55 @@ export function startMatrixAnimation(canvas: HTMLCanvasElement): () => void {
   const resizeObserver = new ResizeObserver(resizeIfNeeded)
   resizeObserver.observe(canvas)
   window.addEventListener('resize', resizeIfNeeded)
-  document.addEventListener('visibilitychange', updateAnimation)
-  reducedMotion.addEventListener('change', updateAnimation)
+  if (animated) {
+    document.addEventListener('visibilitychange', updateAnimation)
+  }
   return () => {
     disposed = true
     window.cancelAnimationFrame(frame)
     resizeObserver.disconnect()
     window.removeEventListener('resize', resizeIfNeeded)
-    document.removeEventListener('visibilitychange', updateAnimation)
-    reducedMotion.removeEventListener('change', updateAnimation)
+    if (animated) {
+      document.removeEventListener('visibilitychange', updateAnimation)
+    }
+  }
+}
+
+export function renderMatrixBackground(canvas: HTMLCanvasElement): () => void {
+  const tablet = window.matchMedia(`(width >= ${tokens['breakpoint-md']})`)
+  const desktop = window.matchMedia(`(width >= ${tokens['breakpoint-lg']})`)
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+  const queries = [tablet, desktop, reducedMotion]
+  let mode: 'hidden' | 'static' | 'animated' | undefined
+  let cleanup: (() => void) | undefined
+
+  function updateBackground() {
+    const nextMode = !tablet.matches
+      ? 'hidden'
+      : desktop.matches && !reducedMotion.matches
+        ? 'animated'
+        : 'static'
+    if (nextMode === mode) return
+    cleanup?.()
+    mode = nextMode
+    cleanup = undefined
+    if (mode === 'hidden') {
+      // Release the backing buffer and skip font loading and rendering on mobile.
+      canvas.width = 0
+      canvas.height = 0
+    } else {
+      cleanup = renderMatrixCanvas(canvas, mode === 'animated')
+    }
+  }
+
+  updateBackground()
+  for (const query of queries) {
+    query.addEventListener('change', updateBackground)
+  }
+  return () => {
+    cleanup?.()
+    for (const query of queries) {
+      query.removeEventListener('change', updateBackground)
+    }
   }
 }

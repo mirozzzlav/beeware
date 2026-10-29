@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { startMatrixAnimation } from './matrix-animation'
+import { renderMatrixBackground } from './matrix-renderer'
 import './MatrixBackground.css'
 
 export default function MatrixBackground() {
@@ -7,7 +7,7 @@ export default function MatrixBackground() {
 
   useEffect(() => {
     const canvas = canvasRef.current
-    if (canvas) return startMatrixAnimation(canvas)
+    if (canvas) return renderMatrixBackground(canvas)
   }, [])
 
   return (
