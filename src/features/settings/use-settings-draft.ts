@@ -5,7 +5,6 @@ import type { Language } from '../language/i18n'
 import type { VerificationSettings } from '../verification/verification'
 import {
   createSettingsDraft,
-  isSettingsDraftDirty,
   settingsDraftReducer,
   type SettingsDraftValues,
 } from './settings-draft'
@@ -56,7 +55,6 @@ export function useSettingsDraft() {
   return {
     values: state.values,
     revision: state.revision,
-    dirty: isSettingsDraftDirty(state),
     initialize,
     commit,
     edit,

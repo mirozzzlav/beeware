@@ -85,7 +85,7 @@ npm run dev
 - Visit prompt: http://localhost:5173/
 - Settings: http://localhost:5173/settings.html
 
-The preview saves its settings in `localStorage`. The extension keeps separate settings in `browser.storage.local`.
+The preview saves its settings as one JSON snapshot in `localStorage`, reading older separate keys until the first save. The extension keeps separate settings in `browser.storage.local` and saves all preferences in one storage operation.
 
 Use the preview to try both verification methods and five-word validation. Select PIN in settings and save a PIN, or scan the QR code with your authenticator app for TOTP; the preview uses its own settings and key, separate from the extension. Successful confirmation displays a success message without opening the destination page. Browsers generally prevent web applications from closing tabs opened manually; in that case, the preview asks you to close the tab yourself. Navigation interception and tab closing work in the extension.
 
@@ -139,7 +139,7 @@ Shared UI lives in `src/components/`. Components with their own styles or assets
 - `src/features/visit/VisitForm.tsx`, `src/features/verification/totp/TotpField.tsx` — controlled visit form and reusable TOTP field with a label and unique IDs.
 - `src/features/visit/visit.ts` — visit approval and tab closing in the extension and preview.
 - `src/features/settings/Settings.tsx` — settings screen with one form around all tabs; `use-settings.ts` handles loading, permissions, persistence and feedback. Hidden tabs stay mounted to preserve drafts.
-- `src/features/settings/use-settings-draft.ts`, `src/features/settings/settings-draft.ts` — local draft values and a pure reducer for domains, language, verification and the question. `dirty` compares editable values with the last loaded or saved snapshot, ignoring domain row IDs. Reverting changes restores a clean draft. Revisions invalidate old feedback and prevent pending saves from overwriting newer edits. Language changes still preview immediately through the language provider; the form's selected language remains part of its local draft.
+- `src/features/settings/use-settings-draft.ts`, `src/features/settings/settings-draft.ts` — local draft values and a pure reducer for domains, language, verification and the question. Revisions invalidate old feedback and prevent pending saves from overwriting newer edits. Language changes still preview immediately through the language provider; the form's selected language remains part of its local draft.
 - `src/features/settings/SettingsSection.tsx`, `src/features/settings/VisitQuestionSettings.tsx` — shared settings tab layout and controlled question settings.
 - `src/features/settings/observe-settings.ts`, `src/features/settings/use-stored-settings.ts` — shared storage subscriptions for the extension and preview. Only the latest read can publish a value or error, and cleanup ignores pending reads. Hook sources are declared at module scope so renders do not restart subscriptions. The language provider uses the observer directly to retain its editable language preview.
 - `src/features/visit/use-close-tab.ts` — shared tab closing and preview feedback with timer cleanup on unmount.

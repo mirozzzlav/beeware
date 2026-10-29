@@ -4,11 +4,7 @@ import {
   isExtension,
   readLanguage,
   readVisitSettings,
-  saveSites,
-  saveLanguage,
-  saveVerification,
-  saveVisitQuestionEnabled,
-  saveVisitQuestionText,
+  saveSettings,
 } from './settings-store'
 import { useCloseTab } from '../visit/use-close-tab'
 import { asMessageError, MessageError, type Language } from '../language/i18n'
@@ -78,11 +74,7 @@ export function useSettings() {
         })
         if (!granted) throw new MessageError('permissionError')
       }
-      await saveSites(sites)
-      await saveLanguage(normalized.language)
-      await saveVerification(normalized.verification)
-      await saveVisitQuestionEnabled(normalized.visitQuestionEnabled)
-      await saveVisitQuestionText(normalized.visitQuestionText)
+      await saveSettings({ ...normalized, sites })
       draft.commit(normalized, revision)
       setFeedback({ revision, saved: true })
     } catch (cause) {
@@ -111,7 +103,6 @@ export function useSettings() {
   const error = currentFeedback?.error
   return {
     ...values,
-    dirty: draft.dirty,
     loading: loadStatus === 'loading',
     loadFailed: loadStatus === 'failed',
     busy,

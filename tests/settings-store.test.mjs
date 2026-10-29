@@ -4,6 +4,8 @@ import { defaultLanguage } from '../src/features/language/i18n.ts'
 
 let data = {}
 let reads = []
+let writes = []
+let writeError
 globalThis.browser = {
   runtime: { id: 'extension@test' },
   storage: {
@@ -15,30 +17,47 @@ globalThis.browser = {
         )
       },
       set: async (value) => {
+        writes.push(value)
+        if (writeError) throw writeError
         Object.assign(data, value)
       },
     },
   },
 }
 const {
+  saveSettings,
   readSites,
-  saveSites,
   ensureTotpSecret,
   readLanguage,
-  saveLanguage,
   readVerification,
-  saveVerification,
   readVisitQuestionEnabled,
-  saveVisitQuestionEnabled,
-  readVisitQuestionText,
-  saveVisitQuestionText,
   readVisitSettings,
   visitSettingsStorageKeys,
 } = await import('../src/features/settings/settings-store.ts')
 beforeEach(() => {
   data = {}
   reads = []
+  writes = []
+  writeError = undefined
 })
+
+// Exercise individual preference changes through the complete save API.
+async function savePatch(patch) {
+  await saveSettings({
+    ...(await readVisitSettings()),
+    language: await readLanguage(),
+    ...patch,
+  })
+}
+const saveSites = (sites) => savePatch({ sites })
+const saveLanguage = (language) => savePatch({ language })
+const saveVerification = (verification) => savePatch({ verification })
+const saveVisitQuestionEnabled = (visitQuestionEnabled) =>
+  savePatch({ visitQuestionEnabled })
+const saveVisitQuestionText = (visitQuestionText) =>
+  savePatch({ visitQuestionText })
+const readVisitQuestionText = async () =>
+  (await readVisitSettings()).visitQuestionText
 
 test('loads all visit preferences from one storage snapshot with shared defaults', async () => {
   const snapshot = await readVisitSettings()
@@ -179,4 +198,47 @@ test('old stored TOTP and PIN preferences take precedence over initial settings'
   assert.equal(migrated.methods.pin.pin, '000123')
   await saveVerification(migrated)
   assert.deepEqual(data.verification, migrated)
+})
+
+test('saves all preferences in one write and preserves the authenticator secret', async () => {
+  const secret = await ensureTotpSecret()
+  writes = []
+  await savePatch({
+    sites: [],
+    language: 'sk',
+    visitQuestionEnabled: false,
+    visitQuestionText: ' Why? ',
+    verification: { mode: 'pin', methods: { pin: { pin: '0099' } } },
+  })
+  assert.equal(writes.length, 1)
+  assert.deepEqual(
+    Object.keys(writes[0]).sort(),
+    [
+      'domainRules',
+      'language',
+      'verification',
+      'visitQuestionEnabled',
+      'visitQuestionText',
+    ].sort(),
+  )
+  assert.equal(data.visitQuestionText, 'Why?')
+  assert.equal(data.totpSecret, secret)
+})
+
+test('validation and storage failures leave the previous configuration intact', async () => {
+  await savePatch({ language: 'sk' })
+  const previous = structuredClone(data)
+  writes = []
+  await assert.rejects(
+    savePatch({ sites: [], language: 'en', verification: { mode: 'invalid' } }),
+  )
+  assert.equal(writes.length, 0)
+  assert.deepEqual(data, previous)
+  writeError = new Error('Storage unavailable')
+  await assert.rejects(
+    savePatch({ sites: [], language: 'en' }),
+    /Storage unavailable/,
+  )
+  assert.equal(writes.length, 1)
+  assert.deepEqual(data, previous)
 })

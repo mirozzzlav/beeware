@@ -1,4 +1,4 @@
-import { isExtension } from './settings-store.ts'
+import { isExtension, previewSettingsStorageKey } from './settings-store.ts'
 
 export interface SettingsSource<T> {
   keys: readonly string[]
@@ -17,7 +17,9 @@ function subscribeToSettings(keys: readonly string[], reload: () => void) {
   const onStorage = (event: StorageEvent) => {
     if (
       event.storageArea === window.localStorage &&
-      (event.key === null || keys.includes(event.key))
+      (event.key === null ||
+        event.key === previewSettingsStorageKey ||
+        keys.includes(event.key))
     )
       reload()
   }

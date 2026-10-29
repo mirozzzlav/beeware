@@ -17,7 +17,6 @@ export interface SettingsDraftValues {
 
 export interface SettingsDraftState {
   values: SettingsDraftValues
-  baseline: SettingsDraftValues | null
   revision: number
 }
 
@@ -46,7 +45,6 @@ export function createSettingsDraft(): SettingsDraftState {
       visitQuestionEnabled: initialSettings.visitQuestionEnabled,
       visitQuestionText: null,
     },
-    baseline: null,
     revision: 0,
   }
 }
@@ -56,13 +54,12 @@ export function settingsDraftReducer(
   action: SettingsDraftAction,
 ): SettingsDraftState {
   if (action.type === 'initialize')
-    return { values: action.values, baseline: action.values, revision: 0 }
+    return { values: action.values, revision: 0 }
   if (action.type === 'commit') {
     return {
       ...state,
       // A save acknowledges its snapshot, never edits made while it was pending.
       values: action.revision === state.revision ? action.values : state.values,
-      baseline: action.values,
     }
   }
 
@@ -91,20 +88,4 @@ export function settingsDraftReducer(
       }
   }
   return { ...state, values, revision: state.revision + 1 }
-}
-
-function comparableValues(values: SettingsDraftValues) {
-  return {
-    ...values,
-    // IDs and automatic-name bookkeeping are not persisted user preferences.
-    rows: values.rows.map(({ domain, name }) => ({ domain, name })),
-  }
-}
-
-export function isSettingsDraftDirty(state: SettingsDraftState): boolean {
-  return (
-    state.baseline !== null &&
-    JSON.stringify(comparableValues(state.values)) !==
-      JSON.stringify(comparableValues(state.baseline))
-  )
 }

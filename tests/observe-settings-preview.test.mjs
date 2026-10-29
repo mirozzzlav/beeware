@@ -47,3 +47,19 @@ test('preview watches its localStorage keys and clear(), and cleans up', async (
   emit('language')
   assert.equal(reads, 3)
 })
+
+test('a complete preview snapshot refreshes language subscribers', async (t) => {
+  const { previewSettingsStorageKey } =
+    await import('../src/features/settings/settings-store.ts')
+  let reads = 0
+  const stop = observeSettings(
+    { keys: ['language'], read: async () => ++reads },
+    () => {},
+    () => assert.fail('unexpected failure'),
+  )
+  t.after(stop)
+  await Promise.resolve()
+  emit(previewSettingsStorageKey)
+  await Promise.resolve()
+  assert.equal(reads, 2)
+})

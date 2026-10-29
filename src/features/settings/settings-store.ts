@@ -37,40 +37,13 @@ function normalizeSites(value: unknown): DomainRule[] {
     : normalizeRules(value)
 }
 
-export async function readVisitQuestionText(): Promise<string | null> {
-  const value: unknown = isExtension
-    ? (await browser.storage.local.get(visitQuestionTextStorageKey))[
-        visitQuestionTextStorageKey
-      ]
-    : window.localStorage.getItem(visitQuestionTextStorageKey)
-  return normalizeQuestionText(value)
-}
-
-export async function saveVisitQuestionText(
-  value: string | null,
-): Promise<void> {
-  const text = value?.trim() || null
-  if (isExtension)
-    await browser.storage.local.set({ [visitQuestionTextStorageKey]: text })
-  else if (text === null)
-    window.localStorage.removeItem(visitQuestionTextStorageKey)
-  else window.localStorage.setItem(visitQuestionTextStorageKey, text)
-}
-
 export async function readVisitQuestionEnabled(): Promise<boolean> {
   const value: unknown = isExtension
     ? (await browser.storage.local.get(visitQuestionStorageKey))[
         visitQuestionStorageKey
       ]
-    : JSON.parse(window.localStorage.getItem(visitQuestionStorageKey) ?? 'null')
+    : readPreviewSettings()[visitQuestionStorageKey]
   return normalizeQuestionEnabled(value)
-}
-
-export async function saveVisitQuestionEnabled(value: boolean): Promise<void> {
-  if (isExtension)
-    await browser.storage.local.set({ [visitQuestionStorageKey]: value })
-  else
-    window.localStorage.setItem(visitQuestionStorageKey, JSON.stringify(value))
 }
 
 export async function readVerification(): Promise<VerificationSettings> {
@@ -78,21 +51,8 @@ export async function readVerification(): Promise<VerificationSettings> {
     ? (await browser.storage.local.get(verificationStorageKey))[
         verificationStorageKey
       ]
-    : JSON.parse(window.localStorage.getItem(verificationStorageKey) ?? 'null')
+    : readPreviewSettings()[verificationStorageKey]
   return normalizeVerification(value)
-}
-
-export async function saveVerification(
-  value: VerificationSettings,
-): Promise<void> {
-  const normalized = normalizeVerification(value)
-  if (isExtension)
-    await browser.storage.local.set({ [verificationStorageKey]: normalized })
-  else
-    window.localStorage.setItem(
-      verificationStorageKey,
-      JSON.stringify(normalized),
-    )
 }
 
 export const languageStorageKey = 'language'
@@ -100,15 +60,8 @@ export const languageStorageKey = 'language'
 export async function readLanguage(): Promise<Language> {
   const value: unknown = isExtension
     ? (await browser.storage.local.get(languageStorageKey))[languageStorageKey]
-    : window.localStorage.getItem(languageStorageKey)
+    : readPreviewSettings()[languageStorageKey]
   return normalizeLanguage(value)
-}
-
-export async function saveLanguage(language: Language): Promise<void> {
-  const normalized = normalizeLanguage(language)
-  if (isExtension)
-    await browser.storage.local.set({ [languageStorageKey]: normalized })
-  else window.localStorage.setItem(languageStorageKey, normalized)
 }
 
 export const sitesStorageKey = 'domainRules'
@@ -118,7 +71,7 @@ export const isExtension =
 export async function readSites(): Promise<DomainRule[]> {
   const value: unknown = isExtension
     ? (await browser.storage.local.get(sitesStorageKey))[sitesStorageKey]
-    : JSON.parse(window.localStorage.getItem(sitesStorageKey) ?? 'null')
+    : readPreviewSettings()[sitesStorageKey]
   return normalizeSites(value)
 }
 
@@ -134,20 +87,7 @@ export const visitSettingsStorageKeys = [
 export async function readVisitSettings() {
   const values: Record<string, unknown> = isExtension
     ? await browser.storage.local.get(visitSettingsStorageKeys)
-    : {
-        [sitesStorageKey]: JSON.parse(
-          window.localStorage.getItem(sitesStorageKey) ?? 'null',
-        ),
-        [verificationStorageKey]: JSON.parse(
-          window.localStorage.getItem(verificationStorageKey) ?? 'null',
-        ),
-        [visitQuestionStorageKey]: JSON.parse(
-          window.localStorage.getItem(visitQuestionStorageKey) ?? 'null',
-        ),
-        [visitQuestionTextStorageKey]: window.localStorage.getItem(
-          visitQuestionTextStorageKey,
-        ),
-      }
+    : readPreviewSettings()
   return {
     sites: normalizeSites(values[sitesStorageKey]),
     verification: normalizeVerification(values[verificationStorageKey]),
@@ -160,11 +100,61 @@ export async function readVisitSettings() {
   }
 }
 
-export async function saveSites(sites: DomainRule[]): Promise<void> {
-  const normalized = normalizeRules(sites)
-  if (isExtension)
-    await browser.storage.local.set({ [sitesStorageKey]: normalized })
-  else window.localStorage.setItem(sitesStorageKey, JSON.stringify(normalized))
+export const previewSettingsStorageKey = `${appSlug}-settings`
+
+function readPreviewSettings(): Record<string, unknown> {
+  const saved = window.localStorage.getItem(previewSettingsStorageKey)
+  if (saved !== null) {
+    const value: unknown = JSON.parse(saved)
+    if (!value || typeof value !== 'object' || Array.isArray(value))
+      throw new Error('Invalid preview settings')
+    return value as Record<string, unknown>
+  }
+  // Read older preview installations until the first complete save.
+  return {
+    [sitesStorageKey]: JSON.parse(
+      window.localStorage.getItem(sitesStorageKey) ?? 'null',
+    ),
+    [verificationStorageKey]: JSON.parse(
+      window.localStorage.getItem(verificationStorageKey) ?? 'null',
+    ),
+    [visitQuestionStorageKey]: JSON.parse(
+      window.localStorage.getItem(visitQuestionStorageKey) ?? 'null',
+    ),
+    [visitQuestionTextStorageKey]: window.localStorage.getItem(
+      visitQuestionTextStorageKey,
+    ),
+    [languageStorageKey]: window.localStorage.getItem(languageStorageKey),
+  }
+}
+
+interface SettingsValues {
+  sites: DomainRule[]
+  language: Language
+  verification: VerificationSettings
+  visitQuestionEnabled: boolean
+  visitQuestionText: string | null
+}
+
+export async function saveSettings(settings: SettingsValues): Promise<void> {
+  // Normalize everything before writing, then publish one complete configuration.
+  const values = {
+    [sitesStorageKey]: normalizeRules(settings.sites),
+    [languageStorageKey]: normalizeLanguage(settings.language),
+    [verificationStorageKey]: normalizeVerification(settings.verification),
+    [visitQuestionStorageKey]: normalizeQuestionEnabled(
+      settings.visitQuestionEnabled,
+    ),
+    [visitQuestionTextStorageKey]: normalizeQuestionText(
+      settings.visitQuestionText,
+    ),
+  }
+  if (isExtension) await browser.storage.local.set(values)
+  else
+    window.localStorage.setItem(
+      previewSettingsStorageKey,
+      JSON.stringify(values),
+    )
 }
 
 export const totpStorageKey = 'totpSecret'
