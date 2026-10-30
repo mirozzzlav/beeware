@@ -3,7 +3,7 @@ import path from 'node:path'
 
 export function publishArchives(staging, output, name, archives) {
   fs.mkdirSync(output, { recursive: true })
-  // Copy both archives onto the destination filesystem before touching releases.
+  // Copy all archives onto the destination filesystem before touching releases.
   const pending = fs.mkdtempSync(path.join(output, '.pending-'))
   const backups = []
   const installed = []
@@ -25,7 +25,7 @@ export function publishArchives(staging, output, name, archives) {
         installed.push(archive)
       }
     } catch (error) {
-      // Restore both files when installing either archive fails.
+      // Restore every file when installing an archive fails.
       try {
         for (const archive of installed) fs.rmSync(path.join(output, archive))
         for (const archive of backups)
@@ -40,7 +40,7 @@ export function publishArchives(staging, output, name, archives) {
       }
       throw error
     }
-    // Only retire older versions after both new archives are in place.
+    // Only retire older versions after all new archives are in place.
     for (const entry of fs.readdirSync(output, { withFileTypes: true })) {
       if (
         entry.isFile() &&

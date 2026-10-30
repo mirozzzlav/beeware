@@ -19,7 +19,11 @@ const { name, version } = JSON.parse(
 )
 const output = path.join(root, 'releases')
 const basename = `${name}-${version}`
-const archives = [`${basename}.zip`, `${basename}-source.zip`]
+const targets = ['chromium', 'firefox']
+const archives = [
+  ...targets.map((target) => `${basename}-${target}.zip`),
+  `${basename}-source.zip`,
+]
 const sourceEntries = [
   'README.md',
   'package.json',
@@ -28,6 +32,8 @@ const sourceEntries = [
   '.prettierignore',
   '.prettierrc.json',
   'manifest.template.json',
+  'manifest.chromium.json',
+  'manifest.firefox.json',
   'design-tokens.plugin.ts',
   'vite.config.ts',
   'tsconfig.json',
@@ -73,11 +79,15 @@ function packageRelease() {
   } else {
     run('npm', ['run', 'build'])
   }
-  const manifest = JSON.parse(
-    readFileSync(path.join(root, 'dist/manifest.json'), 'utf8'),
-  )
-  if (manifest.version !== version) {
-    throw new Error('The built manifest version does not match package.json.')
+  for (const target of targets) {
+    const manifest = JSON.parse(
+      readFileSync(path.join(root, 'dist', target, 'manifest.json'), 'utf8'),
+    )
+    if (manifest.version !== version) {
+      throw new Error(
+        `The ${target} manifest version does not match package.json.`,
+      )
+    }
   }
 
   const staging = mkdtempSync(path.join(tmpdir(), `${name}-release-`))
@@ -105,12 +115,24 @@ function packageRelease() {
         },
       })
     }
+    for (const target of targets) {
+      run(
+        'zip',
+        [
+          '-q',
+          '-X',
+          '-r',
+          path.join(staging, `${basename}-${target}.zip`),
+          '.',
+        ],
+        path.join(root, 'dist', target),
+      )
+    }
     run(
       'zip',
-      ['-q', '-X', '-r', path.join(staging, archives[0]), '.'],
-      path.join(root, 'dist'),
+      ['-q', '-X', '-r', path.join(staging, `${basename}-source.zip`), '.'],
+      source,
     )
-    run('zip', ['-q', '-X', '-r', path.join(staging, archives[1]), '.'], source)
 
     publishArchives(staging, output, name, archives)
     for (const archive of archives)

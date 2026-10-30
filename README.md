@@ -1,8 +1,10 @@
 # WakeUp
 
-The project and interface use the name **WakeUp** from the `displayName` field in `package.json`. The full extension name, **Wake Up Neo**, is stored in `longName` and written to the `name` field in the generated `dist/manifest.json`. `src/app-info.ts` exposes these names to the application and build process. The technical package name (`name`) and version are also read from `package.json`.
+The project and interface use the name **WakeUp** from the `displayName` field in `package.json`. The full extension name, **Wake Up Neo**, is stored in `longName` and written to the `name` field in the generated browser-specific `manifest.json` files. `src/app-info.ts` exposes these names to the application and build process. The technical package name (`name`) and version are also read from `package.json`.
 
-A Firefox extension built with React and TypeScript that asks, “You are about to visit Facebook. What are you going to do there?” before opening a monitored domain. The site name comes from the settings. By default, continuing requires an explanation of at least five words and the selected verification method: a six-digit code from an external authenticator app or a saved PIN entered on a shuffled keypad. You can customize or disable the question in settings. The other button closes the current tab.
+A browser extension for Firefox, Chrome and Brave built with React and TypeScript that asks, “You are about to visit Facebook. What are you going to do there?” before opening a monitored domain. The site name comes from the settings. By default, continuing requires an explanation of at least five words and the selected verification method: a six-digit code from an external authenticator app or a saved PIN entered on a shuffled keypad. You can customize or disable the question in settings. The other button closes the current tab.
+
+One shared codebase produces two Manifest V3 builds: `dist/chromium/` for Chrome and Brave, using `background.service_worker`, and `dist/firefox/` for Firefox, using `background.scripts`. Each package contains only its own platform settings. The minimum desktop versions are Firefox 140 and Chrome 121 (or Brave using Chromium 121 or later). Store submission and signing remain separate for Mozilla Add-ons and the Chrome Web Store.
 
 ## Author and support
 
@@ -40,9 +42,9 @@ npm run build
 
 The first two commands should print `v24.19.0` and `11.17.0`. `npm ci` installs the exact dependency versions recorded in `package-lock.json`; keep the lockfile unchanged. Build tools are installed locally by npm; no global Vite or TypeScript installation is needed.
 
-`npm run build` runs TypeScript checking followed by a production Vite build. Vite clears the output directory, bundles the React application and background script, generates `manifest.json` from `manifest.template.json` and the metadata in `package.json`, copies the standalone extension icon from `public/icon.png`, and generates CSS variables through `design-tokens.plugin.ts` using `src/tokens.json`.
+`npm run build` runs TypeScript checking once, removes the old `dist/` tree, then builds Chromium followed by Firefox. Vite bundles the shared React application and background script, generates each `manifest.json` from `manifest.template.json`, its platform file (`manifest.chromium.json` or `manifest.firefox.json`) and metadata in `package.json`, copies `public/icon.png`, and generates CSS variables through `design-tokens.plugin.ts` using `src/tokens.json`. To build only one target, use `npm run build:chromium` or `npm run build:firefox`; these replace only the selected target directory.
 
-The complete installable extension is in `dist/`, with `manifest.json` directly inside it. Compare the contents of this directory with the submitted extension package. Do not edit generated files manually or use the development server to produce the submission.
+The complete Firefox extension is in `dist/firefox/`, and the Chrome/Brave extension is in `dist/chromium/`, each with `manifest.json` directly inside it. Compare the contents of this directory with the submitted extension package. Do not edit generated files manually or use the development server to produce the submission.
 
 ### Optional checks and packaging
 
@@ -53,18 +55,19 @@ npm test
 npm run package
 ```
 
-`npm run package` runs a fresh production build and creates two archives in `releases/`, named using `name` and `version` from `package.json`:
+`npm run package` runs a fresh production build and creates three archives in `releases/`, named using `name` and `version` from `package.json`:
 
-- `wakeup-0.1.0.zip`: the contents of `dist/`, with `manifest.json` at the archive root. Upload this as the extension package.
+- `wakeup-0.1.0-chromium.zip`: the contents of `dist/chromium/`, with `manifest.json` at the archive root. Use this for Chrome and Brave / the Chrome Web Store.
+- `wakeup-0.1.0-firefox.zip`: the contents of `dist/firefox/`, with `manifest.json` at the archive root. Upload this to Mozilla Add-ons.
 - `wakeup-0.1.0-source.zip`: the matching source code, this README, lockfile, tests, scripts and build configuration. Attach this as the source code package for Mozilla reviewers.
 
-The command requires Node.js 24, installed npm dependencies (`npm ci --include=dev`) and the `zip` command. It replaces older ZIP files beginning with the current package name followed by `-` in `releases/` only after both new archives have been created successfully. ZIP files elsewhere are left untouched. The source archive excludes dependencies, build output, release archives, Git and IDE metadata, environment files and logs. The `releases/` directory is ignored by Git.
+The command requires Node.js 24, installed npm dependencies (`npm ci --include=dev`) and the `zip` command. It replaces older ZIP files beginning with the current package name followed by `-` in `releases/` only after all three new archives have been created successfully. ZIP files elsewhere are left untouched. The source archive excludes dependencies, build output, release archives, Git and IDE metadata, environment files and logs. The `releases/` directory is ignored by Git.
 
-For functional testing, follow the Firefox testing instructions below; the extension does not require an online account. TOTP setup requires an authenticator app.
+For functional testing, follow the browser testing instructions below; the extension does not require an online account. TOTP setup requires an authenticator app.
 
 ### Source archive for AMO
 
-Submit a separate ZIP of the matching source tree, including this README, `package.json`, `package-lock.json`, `src/`, `public/`, `manifest.template.json`, `scripts/`, `tests/`, HTML entry files, and all build, TypeScript, ESLint and formatting configuration files. Exclude `node_modules/`, `dist/`, `.git/`, IDE settings and generated release archives. Attach the matching source archive to each submitted version.
+Submit a separate ZIP of the matching source tree, including this README, `package.json`, `package-lock.json`, `src/`, `public/`, `manifest.template.json`, `manifest.chromium.json`, `manifest.firefox.json`, `scripts/`, `tests/`, HTML entry files, and all build, TypeScript, ESLint and formatting configuration files. Exclude `node_modules/`, `dist/`, `.git/`, IDE settings and generated release archives. Attach the matching source archive to each submitted version.
 
 Mozilla's [source code submission requirements](https://extensionworkshop.com/documentation/publish/source-code-submission/) explicitly recommend including build instructions in a README shipped with the sources.
 
@@ -111,7 +114,7 @@ Confirm changes with **Save settings**. Firefox requests access when you add a n
 
 1. Run `npm run build`.
 2. Open `about:debugging#/runtime/this-firefox`.
-3. Click **Load Temporary Add-on…** and select `dist/manifest.json`.
+3. Click **Load Temporary Add-on…** and select `dist/firefox/manifest.json`.
 4. Click the extension icon, choose a verification method and configure the domains. For TOTP, scan the QR code with an external authenticator app; for PIN, enter a PIN of 4 to 12 digits. Save the settings. The default list includes Facebook.
 5. Open a monitored domain in a new tab. The WakeUp prompt appears instead of the destination page.
 6. **Continue** requires at least five words when the question is enabled, and either a valid TOTP code or the correct PIN entered on the shuffled keypad. An incorrect code displays an error; expired TOTP codes also fail. A valid code and explanation allow navigation to the original URL. Repeat with the other verification method, checking leading zeroes, deletion and clearing in PIN mode. Customize the question, then disable it and confirm that verification still works without an explanation. An enabled question with empty text must display a validation error when saving settings.
@@ -127,6 +130,18 @@ Navigation interception uses `declarativeNetRequest` session rules with the `dec
 All browser API consumers use `src/browser-api.ts` (the background imports `webextension-polyfill` directly and shares that instance). Extension pages initialize the API before rendering, using the native `browser` namespace where available and loading the polyfill for Chromium versions without it. The web preview does not load the polyfill and continues to use `localStorage`. Background initialization uses a static import, so it does not depend on dynamic imports inside an extension service worker.
 
 After changing the code, run `npm run build` and click **Reload** for the extension in `about:debugging`. Firefox removes the temporary extension when it restarts.
+
+## Testing in Chrome and Brave
+
+1. Run `npm run build` (both targets) or `npm run build:chromium` (Chrome/Brave only).
+2. Open `chrome://extensions` in Chrome or `brave://extensions` in Brave.
+3. Enable **Developer mode**, click **Load unpacked**, and select the `dist/chromium/` directory.
+4. Open WakeUp settings from its toolbar icon and repeat the domain, PIN/TOTP, per-tab approval and leave-and-return checks described above.
+5. After a code change, rebuild and reload the extension on the extensions page. Inspect its service worker there when diagnosing background errors.
+
+The Chromium manifest contains no `background.scripts` or Firefox-specific keys, so it avoids those manifest warnings. Both targets declare the developer name with `author`. If you previously loaded the universal `dist/` directory, disable that old development installation and load `dist/chromium/` instead; the extension ID may change because the unpacked directory changed, and existing local settings will belong to the old installation.
+
+Use `wakeup-0.1.0-chromium.zip` for the Chrome Web Store and `wakeup-0.1.0-firefox.zip` for Mozilla Add-ons. Firefox users install the signed XPI produced by Mozilla; Chrome and Brave users can install through the Chrome Web Store.
 
 ## Checks and formatting
 
@@ -171,7 +186,8 @@ Shared UI lives in `src/components/`. Components with their own styles or assets
 - `src/features/domains/policy.ts` — domain validation, monitored domain selection and word counting.
 - `src/background.ts` — navigation interception and temporary approvals.
 - `src/browser-api.ts` — shared browser API instance, extension detection and extension page initialization; `src/webextension-polyfill.d.ts` reuses the existing Firefox API types for the polyfill.
-- `manifest.template.json` — Firefox permissions and extension settings template; the build adds the name, version and identifier from `package.json`.
+- `manifest.template.json` — common permissions, icons and extension settings. `manifest.chromium.json` and `manifest.firefox.json` contain platform settings; `scripts/extension-manifest.ts` adds release metadata and the Firefox identifier.
+- `scripts/build.mjs` — type checking and building one or both browser targets; `scripts/package-release.mjs` creates the two browser ZIPs and matching source archive.
 - `public/icon.png` — shared 128×128 PNG capsule icon used by the extension, toolbar button and page favicons, copied unchanged during builds.
 
 The extension identifier is generated as `@${name}.wondercules` from the `name` field in `package.json` and written to `browser_specific_settings.gecko.id`. Changing the technical package name changes the extension's identity in Firefox. Keep it unchanged after publication, including in subsequent versions.

@@ -18,7 +18,9 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "node scripts/build.mjs",
+    "build:chromium": "node scripts/build.mjs chromium",
+    "build:firefox": "node scripts/build.mjs firefox",
     "package": "node scripts/package-release.mjs",
     "preview": "vite preview",
     "lint": "eslint . --max-warnings 0 && npm run check:tokens",
