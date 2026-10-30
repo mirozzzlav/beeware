@@ -94,6 +94,12 @@ button:focus-visible {
   background: var(--color-surface);
   color: var(--color-text-control);
 }
+.action-button:has(.pill-icon[data-color='blue']) {
+  border-color: var(--palette-blue-500);
+}
+.action-button:has(.pill-icon[data-color='red']) {
+  border-color: var(--palette-red-500);
+}
 .pill-leading-icon,
 .message-icon {
   display: inline-flex;
@@ -357,6 +363,8 @@ a:focus-visible {
 }
 .switch-input {
   appearance: none;
+  display: grid;
+  align-items: center;
   flex-shrink: 0;
   width: calc(var(--space-24) * 2);
   height: var(--space-28);
@@ -379,7 +387,7 @@ a:focus-visible {
   background: var(--palette-blue-500);
 }
 .switch-input:checked::before {
-  transform: translateX(var(--space-20));
+  justify-self: end;
 }
 .switch-input:focus-visible {
   outline: var(--outline-focus);
@@ -565,9 +573,15 @@ a {
     padding: var(--space-16) var(--space-12);
   }
 }
-.otp-block,
-.settings-block {
+.otp-block {
   margin-bottom: var(--space-28);
+}
+.settings-block {
+  margin-bottom: var(--space-16);
+  padding: var(--space-20) var(--space-20) var(--space-24);
+}
+.settings-block > .block-heading > .block-description {
+  margin-bottom: var(--space-16);
 }
 .visit-question + textarea {
   margin-bottom: var(--space-28);
@@ -738,7 +752,15 @@ a {
 .visit-page .panel-footer {
   margin-top: var(--space-16);
   margin-bottom: calc(-1 * var(--space-24));
-  padding-block: var(--space-16);
+  padding-block: var(--space-24);
+}
+.visit-page .panel-actions {
+  gap: var(--space-8);
+}
+@media (--max-sm) {
+  .visit-page .panel-actions {
+    gap: var(--space-6);
+  }
 }
 .visit-page textarea {
   min-height: calc(var(--size-textarea) - var(--space-24));

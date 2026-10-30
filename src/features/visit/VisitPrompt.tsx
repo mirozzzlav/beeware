@@ -53,7 +53,6 @@ export default function VisitPrompt({
         ) : (
           <FormActions
             form="visit-form"
-            submitFirst
             busy={busy}
             onCancel={closeWindow}
             cancelLabel={t('closeWindow')}

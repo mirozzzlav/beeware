@@ -5,6 +5,7 @@ export default function PillIcon({ color }: { color: 'blue' | 'red' }) {
   return (
     <svg
       className="pill-icon"
+      data-color={color}
       viewBox="0 0 24 24"
       fill="none"
       aria-hidden="true"
