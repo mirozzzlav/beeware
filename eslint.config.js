@@ -13,7 +13,7 @@ export default tseslint.config(
   {
     files: ['**/*.{js,mjs,ts,tsx}'],
     languageOptions: {
-      globals: { ...globals.browser, ...globals.node, browser: 'readonly' },
+      globals: { ...globals.browser, ...globals.node },
     },
   },
   {

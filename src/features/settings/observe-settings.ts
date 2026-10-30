@@ -1,3 +1,4 @@
+import { browser } from '../../browser-api.ts'
 import { isExtension, previewSettingsStorageKey } from './settings-store.ts'
 
 export interface SettingsSource<T> {

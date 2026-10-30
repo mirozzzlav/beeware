@@ -1,3 +1,5 @@
+import { browser, isExtension } from '../../browser-api.ts'
+export { isExtension } from '../../browser-api.ts'
 import { appSlug } from '../../app-info.ts'
 import { initialSettings } from './initial-settings.ts'
 import {
@@ -65,8 +67,6 @@ export async function readLanguage(): Promise<Language> {
 }
 
 export const sitesStorageKey = 'domainRules'
-export const isExtension =
-  typeof browser !== 'undefined' && Boolean(browser.runtime?.id)
 
 export async function readSites(): Promise<DomainRule[]> {
   const value: unknown = isExtension

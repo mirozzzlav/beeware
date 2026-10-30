@@ -41,6 +41,18 @@ export default defineConfig({
       generateBundle() {
         this.emitFile({
           type: 'asset',
+          fileName: 'licenses/webextension-polyfill-LICENSE.txt',
+          source: readFileSync(
+            new URL(
+              './node_modules/webextension-polyfill/LICENSE',
+              import.meta.url,
+            ),
+            'utf8',
+          ),
+        })
+
+        this.emitFile({
+          type: 'asset',
           fileName: 'LICENSE',
           source: readFileSync(new URL('./LICENSE', import.meta.url), 'utf8'),
         })

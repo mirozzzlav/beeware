@@ -1,3 +1,4 @@
+import { browser } from '../../browser-api'
 import { useEffect, useState } from 'react'
 import { createDraft } from '../domains/domain-draft'
 import {

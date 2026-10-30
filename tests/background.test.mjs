@@ -90,6 +90,9 @@ globalThis.browser = {
     create: async () => ({}),
   },
 }
+// Firefox exposes both namespaces. The polyfill checks chrome.runtime.id even
+// when it returns the native browser API unchanged.
+globalThis.chrome = { runtime: { id: 'extension@test' } }
 await import('../src/background.ts')
 
 beforeEach(async () => {

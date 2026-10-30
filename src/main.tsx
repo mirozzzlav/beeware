@@ -6,14 +6,20 @@ import MatrixBackground from './components/MatrixBackground/MatrixBackground'
 import LanguageProvider from './features/language/LanguageProvider'
 import 'virtual:tokens.css'
 import './style.css'
+import { initializeBrowserApi } from './browser-api'
 
 const isSettingsPage = window.location.pathname.endsWith('/settings.html')
 
-createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    {!isSettingsPage && <MatrixBackground />}
-    <LanguageProvider>
-      {isSettingsPage ? <Settings /> : <App />}
-    </LanguageProvider>
-  </React.StrictMode>,
-)
+async function mount() {
+  await initializeBrowserApi()
+  createRoot(document.getElementById('root')!).render(
+    <React.StrictMode>
+      {!isSettingsPage && <MatrixBackground />}
+      <LanguageProvider>
+        {isSettingsPage ? <Settings /> : <App />}
+      </LanguageProvider>
+    </React.StrictMode>,
+  )
+}
+
+void mount()

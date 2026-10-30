@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill'
+import { setBrowserApi } from './browser-api.ts'
 import {
   countWords,
   getProtectedSite,
@@ -16,6 +18,8 @@ import {
 import { verifyCode } from './features/verification/verification.ts'
 import { buildRequestRules } from './features/domains/request-rules.ts'
 import { isVisitPage, readVisitTarget } from './features/visit/target.ts'
+
+setBrowserApi(browser)
 
 const approvalKey = (tabId: number) => `approved-domain:${tabId}`
 const checkPage = browser.runtime.getURL('index.html')

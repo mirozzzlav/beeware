@@ -16,6 +16,8 @@ WakeUp's original code is licensed under the [MIT License](LICENSE). Select MIT 
 
 Third-party dependencies retain their own licenses. The bundled DSEG font is licensed under SIL Open Font License 1.1; its notice is included in `public/licenses/DSEG-LICENSE.txt` and copied into the extension package.
 
+The bundled `webextension-polyfill` library is licensed under MPL 2.0. The build includes its license in `licenses/webextension-polyfill-LICENSE.txt`; the dependency version and download location are recorded in `package-lock.json`.
+
 ## Build instructions for Mozilla reviewers
 
 Run all commands from the extracted source directory containing `package.json` and `package-lock.json`.
@@ -122,6 +124,8 @@ Approval, rule updates and cleanup run in order. The background verifies that th
 
 Navigation interception uses `declarativeNetRequest` session rules with the `declarativeNetRequestWithHostAccess` permission. Each monitored domain redirects top-level HTTP(S) requests to WakeUp; existing approvals exclude only the approved tab from that domain's rule. More specific configured subdomains have independent rules. Rules are replaced when settings or approvals change and recreated on browser startup. The original request URL is passed verbatim in the prompt's `#target=` fragment to preserve query parameters and percent escapes; older `?target=` links are still accepted.
 
+All browser API consumers use `src/browser-api.ts` (the background imports `webextension-polyfill` directly and shares that instance). Extension pages initialize the API before rendering, using the native `browser` namespace where available and loading the polyfill for Chromium versions without it. The web preview does not load the polyfill and continues to use `localStorage`. Background initialization uses a static import, so it does not depend on dynamic imports inside an extension service worker.
+
 After changing the code, run `npm run build` and click **Reload** for the extension in `about:debugging`. Firefox removes the temporary extension when it restarts.
 
 ## Checks and formatting
@@ -132,7 +136,7 @@ Use Node.js 24, as specified in `.nvmrc`, to run the TypeScript tests directly.
 - `npm run lint:fix` — automatic lint fixes.
 - `npm run format` — formatting with Prettier.
 - `npm run format:check` — formatting checks.
-- `npm test` — domains, word counting, settings drafts and automatic names, combined visit settings reads, storage subscriptions (including concurrent reads and cleanup), RFC 6238 TOTP test vectors, visit approval and background script behavior using simulated Firefox APIs.
+- `npm test` — domains, word counting, settings drafts and automatic names, combined visit settings reads, storage subscriptions (including concurrent reads and cleanup), RFC 6238 TOTP test vectors, visit approval and background script behavior using simulated Firefox APIs, plus isolated native API, Chromium polyfill and web preview initialization checks.
 - `npm run build` — type checking and production build.
 
 ## Project structure
@@ -166,6 +170,7 @@ Shared UI lives in `src/components/`. Components with their own styles or assets
 - `src/components/Pill.tsx` — shared visual foundation for action buttons and status messages.
 - `src/features/domains/policy.ts` — domain validation, monitored domain selection and word counting.
 - `src/background.ts` — navigation interception and temporary approvals.
+- `src/browser-api.ts` — shared browser API instance, extension detection and extension page initialization; `src/webextension-polyfill.d.ts` reuses the existing Firefox API types for the polyfill.
 - `manifest.template.json` — Firefox permissions and extension settings template; the build adds the name, version and identifier from `package.json`.
 - `public/icon.svg` — standalone red-and-blue capsule icon, copied unchanged into the extension during builds.
 
