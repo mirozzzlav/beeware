@@ -10,11 +10,10 @@
     "webNavigation"
   ],
   "action": {
-    "default_icon": "icon.svg"
+    "default_icon": "icon.png"
   },
   "icons": {
-    "48": "icon.svg",
-    "96": "icon.svg"
+    "128": "icon.png"
   },
   "browser_specific_settings": {
     "gecko": {

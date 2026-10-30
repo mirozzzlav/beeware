@@ -40,7 +40,7 @@ npm run build
 
 The first two commands should print `v24.19.0` and `11.17.0`. `npm ci` installs the exact dependency versions recorded in `package-lock.json`; keep the lockfile unchanged. Build tools are installed locally by npm; no global Vite or TypeScript installation is needed.
 
-`npm run build` runs TypeScript checking followed by a production Vite build. Vite clears the output directory, bundles the React application and background script, generates `manifest.json` from `manifest.template.json` and the metadata in `package.json`, copies the standalone extension icon from `public/icon.svg`, and generates CSS variables through `design-tokens.plugin.ts` using `src/tokens.json`.
+`npm run build` runs TypeScript checking followed by a production Vite build. Vite clears the output directory, bundles the React application and background script, generates `manifest.json` from `manifest.template.json` and the metadata in `package.json`, copies the standalone extension icon from `public/icon.png`, and generates CSS variables through `design-tokens.plugin.ts` using `src/tokens.json`.
 
 The complete installable extension is in `dist/`, with `manifest.json` directly inside it. Compare the contents of this directory with the submitted extension package. Do not edit generated files manually or use the development server to produce the submission.
 
@@ -172,7 +172,7 @@ Shared UI lives in `src/components/`. Components with their own styles or assets
 - `src/background.ts` — navigation interception and temporary approvals.
 - `src/browser-api.ts` — shared browser API instance, extension detection and extension page initialization; `src/webextension-polyfill.d.ts` reuses the existing Firefox API types for the polyfill.
 - `manifest.template.json` — Firefox permissions and extension settings template; the build adds the name, version and identifier from `package.json`.
-- `public/icon.svg` — standalone red-and-blue capsule icon, copied unchanged into the extension during builds.
+- `public/icon.png` — shared 128×128 PNG capsule icon used by the extension, toolbar button and page favicons, copied unchanged during builds.
 
 The extension identifier is generated as `@${name}.wondercules` from the `name` field in `package.json` and written to `browser_specific_settings.gecko.id`. Changing the technical package name changes the extension's identity in Firefox. Keep it unchanged after publication, including in subsequent versions.
 
@@ -227,6 +227,6 @@ Use `@media (--md)` for widths at or above `md`, and `@media (--max-md)` for wid
 
 The visit page uses a card on mobile, tablet and desktop. Below `md`, the card sits at the top with 24px of vertical page padding and 8px of horizontal padding, and stays horizontally centered. From `md` upward, it is centered vertically as well. Compact spacing and stacked domain rows apply below `sm`. The remaining breakpoints are available for future layout changes.
 
-The standalone icon in `public/icon.svg` embeds its own colors and stroke widths so it can be opened or edited independently. Do not edit generated values in `dist` manually.
+The shared icon in `public/icon.png` is a 128×128 PNG. Browsers scale it for smaller toolbar and favicon sizes. Do not edit generated files in `dist` manually.
 
 `npm run lint` checks for hardcoded design values in React and TypeScript and verifies token usage in CSS. Run `npm run check:tokens` for the standalone CSS check; it also detects missing and circular token references. Structural values such as `0`, `100%`, SVG coordinates and inherited styles remain allowed.
