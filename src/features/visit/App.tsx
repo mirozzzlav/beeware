@@ -6,10 +6,9 @@ import { isExtension } from '../settings/settings-store'
 import Panel from '../../components/Panel'
 import { useLanguage } from '../language/use-language'
 import VisitPrompt from './VisitPrompt'
+import { readVisitTarget } from './target'
 
-const requestedTarget = new URLSearchParams(window.location.search).get(
-  'target',
-)
+const requestedTarget = readVisitTarget(window.location.href)
 
 export default function App() {
   const { t } = useLanguage()

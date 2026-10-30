@@ -6,8 +6,7 @@
   "description": "Krátka pauza pred návštevou vybraných domén. Otvor stránku s jasným zámerom.",
   "permissions": [
     "storage",
-    "webRequest",
-    "webRequestBlocking",
+    "declarativeNetRequestWithHostAccess",
     "webNavigation"
   ],
   "action": {

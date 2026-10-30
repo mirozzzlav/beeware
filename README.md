@@ -116,7 +116,11 @@ Confirm changes with **Save settings**. Firefox requests access when you add a n
 7. Navigate to another domain and return: the prompt appears again. A new tab also requires its own confirmation.
 8. **Close window** closes the current tab containing the prompt.
 
-Confirmation remains valid while visiting the domain in that tab. It is stored only in browser memory. Changing the settings clears existing confirmations. The explanation text is neither saved nor sent to a server.
+Confirmation remains valid while visiting the same configured domain in that tab, including its subdomains unless they have their own configured rule. Leaving for another domain (including another protected domain), closing the tab, restarting the browser or updating the extension clears the relevant confirmation. Restarting only the background context within the same browser session preserves confirmations. Changing the settings clears existing confirmations without deleting unrelated session data. The explanation text is neither saved nor sent to a server.
+
+Approval, rule updates and cleanup run in order. The background verifies that the tab is still on the original prompt after installing the temporary exception and before opening the destination. A settings change during verification cancels the pending approval. Concurrent submissions cannot navigate the same prompt twice. Browser API failures return a failed approval; failed rule installation or navigation rolls back the saved confirmation and restores the redirect rule.
+
+Navigation interception uses `declarativeNetRequest` session rules with the `declarativeNetRequestWithHostAccess` permission. Each monitored domain redirects top-level HTTP(S) requests to WakeUp; existing approvals exclude only the approved tab from that domain's rule. More specific configured subdomains have independent rules. Rules are replaced when settings or approvals change and recreated on browser startup. The original request URL is passed verbatim in the prompt's `#target=` fragment to preserve query parameters and percent escapes; older `?target=` links are still accepted.
 
 After changing the code, run `npm run build` and click **Reload** for the extension in `about:debugging`. Firefox removes the temporary extension when it restarts.
 
