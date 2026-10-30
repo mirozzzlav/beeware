@@ -1,0 +1,74 @@
+WAKE UP NEO — PODKLADY PRE MOZILLA ADD-ONS
+
+Názov: Wake Up Neo
+Autor: Miro Furinda
+E-mail podpory: info@mirofurinda.com
+Licencia: MIT License
+Verzia: 0.1.0
+Odporúčaná kategória: Other (Ostatné)
+Predvolený jazyk stránky: English (en-US)
+Voliteľná lokalizácia stránky: Slovenčina (sk)
+Web a web podpory: nechaj prázdne, ak ich zatiaľ nemáš.
+
+ENGLISH — SUMMARY
+Pause before distracting websites. Write your intention, then confirm with a PIN or authenticator code. Choose your domains and browse more mindfully.
+
+ENGLISH — DESCRIPTION
+Opening a website out of habit? Wake Up Neo gives you a moment to decide why you want to go there.
+
+Before visiting a selected domain, answer a short question in at least five words and confirm with a PIN on a shuffled keypad or a six-digit code from your authenticator app. You can also close the tab instead.
+
+- Choose the domains you want to pause before visiting, including their subdomains.
+- Customize the question, or disable it and keep PIN or TOTP verification.
+- Switch between English and Slovak.
+- Keep your settings on your device. Your answers are not saved or sent to a server.
+
+No account is required. To get started, open the extension settings and choose your domains and verification method. TOTP requires an external authenticator app. This is a tool for mindful browsing, not a security or parental-control system.
+
+SLOVENČINA — SÚHRN
+Zastav sa pred návštevou rušivých webov. Napíš svoj zámer a potvrď ho PIN-om alebo kódom z overovacej aplikácie. Vyber si domény a prehliadaj vedomejšie.
+
+SLOVENČINA — POPIS
+Otváraš web zo zvyku? Wake Up Neo ti dá chvíľu na rozhodnutie, prečo tam chceš ísť.
+
+Pred návštevou vybranej domény odpovieš na krátku otázku aspoň piatimi slovami a pokračovanie potvrdíš PIN-om na premiešanej klávesnici alebo šesťmiestnym kódom z overovacej aplikácie. Namiesto pokračovania môžeš panel zavrieť.
+
+- Vyber si domény, pred ktorými sa chceš zastaviť, vrátane ich subdomén.
+- Uprav si otázku alebo ju vypni a ponechaj iba overenie PIN/TOTP.
+- Prepínaj medzi slovenčinou a angličtinou.
+- Nastavenia zostávajú na tvojom zariadení. Odpovede sa neukladajú ani neposielajú na server.
+
+Účet nepotrebuješ. Na začiatok otvor nastavenia rozšírenia a vyber domény a spôsob overenia. TOTP vyžaduje externú overovaciu aplikáciu. Ide o pomôcku na vedomé prehliadanie, nie o bezpečnostný nástroj alebo rodičovskú kontrolu.
+
+SCREENSHOTY — NAHRAJ V TOMTO PORADÍ
+Skutočné zábery z Firefoxu, 1280 × 800 px, anglické rozhranie.
+Vytvorené z publikačného ZIP-u v samostatnom dočasnom profile s ukážkovými údajmi.
+Pri každom screenshote vlož príslušný popis EN do anglickej verzie stránky a SK do slovenskej.
+
+1. screenshots/01-pause-with-pin.png
+   EN: Take a moment before opening Facebook: write what you plan to do, then enter your PIN on a keypad that shuffles with each visit. Continue when ready, or close the window.
+   SK: Pred otvorením Facebooku sa na chvíľu zastav: napíš, čo tam plánuješ robiť, a zadaj PIN na klávesnici, ktorá sa pri každej návšteve premieša. Potom pokračuj alebo okno zavri.
+
+2. screenshots/02-pause-with-totp.png
+   EN: Confirm your intention with a six-digit code from your authenticator app. TOTP verification is available as an alternative to the PIN keypad.
+   SK: Potvrď svoj zámer šesťmiestnym kódom z overovacej aplikácie. Overenie TOTP môžeš používať namiesto PIN-u na klávesnici.
+
+3. screenshots/03-choose-domains.png
+   EN: Choose the websites where you want to pause, such as Facebook, YouTube or Reddit. Add or remove domains and give them your own display names. Subdomains are included too.
+   SK: Vyber si weby, pred ktorými sa chceš zastaviť, napríklad Facebook, YouTube alebo Reddit. Pridávaj či odstraňuj domény a nastav im vlastné zobrazované názvy. Pravidlo platí aj pre ich subdomény.
+
+4. screenshots/04-customize-question.png
+   EN: Choose English or Slovak and write your own question to answer before visiting a website. Keep the answer requirement enabled for a moment of reflection, or turn it off to use only PIN or TOTP verification.
+   SK: Vyber si angličtinu alebo slovenčinu a napíš vlastnú otázku pred návštevou webu. Povinnú odpoveď ponechaj zapnutú pre chvíľu na zamyslenie alebo ju vypni a používaj iba overenie PIN-om či TOTP kódom.
+
+NOTES FOR REVIEWERS — SKOPÍRUJ DO SAMOSTATNÉHO POĽA
+Build and testing instructions are included in README.md in the source archive. Use Node.js 24.19.0 and npm 11.17.0, then run npm ci --include=dev and npm run build. A clean build from this source archive was verified to match the submitted extension files byte for byte. No account is required. The default verification method is PIN (initial PIN: 1234); it can be changed in settings. TOTP is also available and requires an external authenticator app. Processing and storage happen locally; the extension does not transmit user data.
+
+SÚBORY NA ODOSLANIE
+Rozšírenie: wakeup-0.1.0.zip
+Zdrojový kód pre review: wakeup-0.1.0-source.zip
+Logo: icon-128x128.png (128 × 128 px, transparentné PNG)
+Screenshoty a tento text sa nahrávajú/používajú samostatne; nepridávaj ich do ZIP-u rozšírenia.
+
+Pokyny Mozilly: https://extensionworkshop.com/documentation/publish/submitting-an-add-on/
+Screenshoty a popisy: https://extensionworkshop.com/documentation/develop/create-an-appealing-listing/
