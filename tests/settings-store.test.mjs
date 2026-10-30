@@ -32,6 +32,7 @@ const {
   readVerification,
   readVisitQuestionEnabled,
   readVisitSettings,
+  readSettings,
   visitSettingsStorageKeys,
 } = await import('../src/features/settings/settings-store.ts')
 beforeEach(() => {
@@ -58,6 +59,16 @@ const saveVisitQuestionText = (visitQuestionText) =>
   savePatch({ visitQuestionText })
 const readVisitQuestionText = async () =>
   (await readVisitSettings()).visitQuestionText
+
+test('settings form loads language and visit preferences in one read', async () => {
+  data = { language: 'sk', domainRules: [], visitQuestionEnabled: false }
+  const snapshot = await readSettings()
+  assert.deepEqual(reads, [[...visitSettingsStorageKeys, 'language']])
+  assert.equal(snapshot.language, 'sk')
+  assert.deepEqual(snapshot.sites, [])
+  assert.equal(snapshot.visitQuestionEnabled, false)
+  assert.deepEqual(snapshot, { ...(await readVisitSettings()), language: 'sk' })
+})
 
 test('loads all visit preferences from one storage snapshot with shared defaults', async () => {
   const snapshot = await readVisitSettings()

@@ -40,38 +40,32 @@ function normalizeSites(value: unknown): DomainRule[] {
 }
 
 export async function readVisitQuestionEnabled(): Promise<boolean> {
-  const value: unknown = isExtension
-    ? (await browser.storage.local.get(visitQuestionStorageKey))[
-        visitQuestionStorageKey
-      ]
-    : readPreviewSettings()[visitQuestionStorageKey]
+  const value = (await readStoredSettings(visitQuestionStorageKey))[
+    visitQuestionStorageKey
+  ]
   return normalizeQuestionEnabled(value)
 }
 
 export async function readVerification(): Promise<VerificationSettings> {
-  const value: unknown = isExtension
-    ? (await browser.storage.local.get(verificationStorageKey))[
-        verificationStorageKey
-      ]
-    : readPreviewSettings()[verificationStorageKey]
+  const value = (await readStoredSettings(verificationStorageKey))[
+    verificationStorageKey
+  ]
   return normalizeVerification(value)
 }
 
 export const languageStorageKey = 'language'
 
 export async function readLanguage(): Promise<Language> {
-  const value: unknown = isExtension
-    ? (await browser.storage.local.get(languageStorageKey))[languageStorageKey]
-    : readPreviewSettings()[languageStorageKey]
+  const value = (await readStoredSettings(languageStorageKey))[
+    languageStorageKey
+  ]
   return normalizeLanguage(value)
 }
 
 export const sitesStorageKey = 'domainRules'
 
 export async function readSites(): Promise<DomainRule[]> {
-  const value: unknown = isExtension
-    ? (await browser.storage.local.get(sitesStorageKey))[sitesStorageKey]
-    : readPreviewSettings()[sitesStorageKey]
+  const value = (await readStoredSettings(sitesStorageKey))[sitesStorageKey]
   return normalizeSites(value)
 }
 
@@ -82,12 +76,32 @@ export const visitSettingsStorageKeys = [
   visitQuestionTextStorageKey,
 ]
 
+async function readStoredSettings(
+  keys: string | string[],
+): Promise<Record<string, unknown>> {
+  return isExtension ? browser.storage.local.get(keys) : readPreviewSettings()
+}
+
 // Read one extension snapshot. Preview reads are synchronous before yielding,
 // so a storage event cannot publish just one part of the visit configuration.
 export async function readVisitSettings() {
-  const values: Record<string, unknown> = isExtension
-    ? await browser.storage.local.get(visitSettingsStorageKeys)
-    : readPreviewSettings()
+  return normalizeVisitSettings(
+    await readStoredSettings(visitSettingsStorageKeys),
+  )
+}
+
+export async function readSettings() {
+  const values = await readStoredSettings([
+    ...visitSettingsStorageKeys,
+    languageStorageKey,
+  ])
+  return {
+    ...normalizeVisitSettings(values),
+    language: normalizeLanguage(values[languageStorageKey]),
+  }
+}
+
+function normalizeVisitSettings(values: Record<string, unknown>) {
   return {
     sites: normalizeSites(values[sitesStorageKey]),
     verification: normalizeVerification(values[verificationStorageKey]),

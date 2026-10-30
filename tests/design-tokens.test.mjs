@@ -84,6 +84,6 @@ test('ESLint rejects raw CSS colors, inline typography and SVG stroke widths', (
 
 test('ESLint allows tokens in canvas, styles and SVGs', () => {
   const source =
-    'const style = { fontWeight: tokens["font-weight-bold"] }; context.fillStyle = tokens["palette-green-400"]; const view = <svg fill="none" stroke="currentColor" strokeWidth={tokens["stroke-width-icon"]} />;'
+    'const style = { fontWeight: tokens["font-weight-bold"] }; context.fillStyle = tokens["palette-blue-500"]; const view = <svg fill="none" stroke="currentColor" strokeWidth={tokens["stroke-width-icon"]} />;'
   assert.deepEqual(linter.verify(source, config), [])
 })

@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useSyncExternalStore } from 'react'
 import { getProtectedSite } from '../domains/policy'
 import { leaveUntrackedPage } from './visit'
 import { useVisitSettings } from './use-visit-settings'
@@ -6,11 +6,13 @@ import { isExtension } from '../settings/settings-store'
 import Panel from '../../components/Panel'
 import { useLanguage } from '../language/use-language'
 import VisitPrompt from './VisitPrompt'
-import { readVisitTarget } from './target'
-
-const requestedTarget = readVisitTarget(window.location.href)
+import { getCurrentVisitTarget, subscribeVisitTarget } from './target'
 
 export default function App() {
+  const requestedTarget = useSyncExternalStore(
+    subscribeVisitTarget,
+    getCurrentVisitTarget,
+  )
   const { t } = useLanguage()
   const { settings, error: loadError } = useVisitSettings()
   const sites = settings?.sites
@@ -20,7 +22,7 @@ export default function App() {
 
   useEffect(() => {
     if (sites && !loadError && !site) leaveUntrackedPage(requestedTarget)
-  }, [sites, loadError, site])
+  }, [sites, loadError, site, requestedTarget])
 
   if (sites && !loadError && !site) return null
 

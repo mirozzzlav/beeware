@@ -1,4 +1,5 @@
-import { useId, type ComponentPropsWithoutRef } from 'react'
+import type { ComponentPropsWithoutRef } from 'react'
+import { useFieldControl } from './use-field-control'
 import FormField from './FormField'
 import type { ControlSize } from './control-size'
 
@@ -16,29 +17,21 @@ export default function TextField({
   className = '',
   ...props
 }: TextFieldProps) {
-  const generatedId = useId()
-  const inputId = id ?? generatedId
+  const control = useFieldControl({
+    id,
+    description,
+    describedBy: props['aria-describedby'],
+    className,
+    size,
+  })
   return (
     <FormField
       label={label}
       description={description}
-      htmlFor={inputId}
+      htmlFor={control.id}
       size={size}
     >
-      <input
-        id={inputId}
-        {...props}
-        className={`control ${className}`.trim()}
-        data-size={size}
-        aria-describedby={
-          [
-            props['aria-describedby'],
-            description ? `${inputId}-description` : undefined,
-          ]
-            .filter(Boolean)
-            .join(' ') || undefined
-        }
-      />
+      <input {...props} {...control} />
     </FormField>
   )
 }

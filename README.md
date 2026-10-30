@@ -160,7 +160,7 @@ Shared UI lives in `src/components/`. Components with their own styles or assets
 
 - `src/features/visit/App.tsx` — loads the visit settings and handles redirects; `VisitPrompt.tsx` owns the ready prompt and uses `use-visit.ts` for form state and submission. Changing the destination or verification method resets the prompt, including its code, explanation, errors and preview result.
 - `src/features/visit/VisitForm.tsx`, `src/features/verification/totp/TotpField.tsx` — controlled visit form and reusable TOTP field with a label and unique IDs.
-- `src/features/visit/visit.ts` — visit approval and tab closing in the extension and preview.
+- `src/features/visit/visit.ts` — visit approval and tab closing in the extension and preview. `target.ts` also subscribes to fragment and history changes so the prompt follows the current destination without a reload.
 - `src/features/settings/Settings.tsx` — settings screen with one form around all tabs; `use-settings.ts` handles loading, permissions, persistence and feedback. Hidden tabs stay mounted to preserve drafts.
 - `src/features/settings/use-settings-draft.ts`, `src/features/settings/settings-draft.ts` — local draft values and a pure reducer for domains, language, verification and the question. Revisions invalidate old feedback and prevent pending saves from overwriting newer edits. Language changes still preview immediately through the language provider; the form's selected language remains part of its local draft.
 - `src/features/settings/SettingsSection.tsx`, `src/features/settings/VisitQuestionSettings.tsx` — shared settings tab layout and controlled question settings.
@@ -171,11 +171,11 @@ Shared UI lives in `src/components/`. Components with their own styles or assets
 - `src/features/settings/LanguageSettings.tsx` — language selection using the shared `SelectField`.
 - `src/features/domains/domain-draft.ts` — draft settings rows, automatic names and conversion to saved rules.
 - `src/components/TextField.tsx`, `src/components/Icon.tsx`, `src/components/ErrorMessage.tsx` — shared UI elements; fields automatically associate labels with unique input IDs.
-- `src/components/FormField.tsx`, `src/components/SelectField.tsx` — shared wrapper for labeled fields and a select field supporting native HTML attributes.
+- `src/components/FormField.tsx`, `src/components/SelectField.tsx`, `src/components/use-field-control.ts` — shared wrapper for labeled fields, a native select, and shared control IDs, description links and sizing.
 - `src/components/FormActions.tsx` — cancel and submit buttons shared by both forms; accepts labels, icons, processing state and a form ID.
 - `src/components/FormFeedback.tsx` — shared error/success feedback with error priority and preserved alert/status roles.
 - `src/components/MatrixBackground/MatrixBackground.tsx`, `src/components/MatrixBackground/MatrixBackground.css`, `src/components/MatrixBackground/matrix-renderer.ts` — reusable responsive binary background, its styles and standalone canvas renderer; follows its container size and cleans up animation, resize observation and event listeners.
-- `src/features/settings/settings-store.ts` — settings persistence.
+- `src/features/settings/settings-store.ts` — settings persistence and shared storage reads; `readSettings` loads language and visit preferences in one snapshot.
 - `src/features/verification/totp/totp.ts` — key generation, provisioning URI and TOTP verification.
 - `src/features/verification/totp/use-totp-setup.ts` — loads the shared secret and generates its QR code with cleanup on unmount. A QR failure preserves the manual key; a secret-loading failure prevents setup. `TotpSettings.tsx` and `TotpSetup.tsx` render the resulting loading, error and ready states.
 - `src/features/verification/pin/PinKeypad.tsx`, `src/features/verification/VerificationSettings.tsx` — shuffled PIN keypad and method selection.
@@ -225,9 +225,9 @@ Settings use a single column inside a left-aligned wrapper with a maximum width 
 
 All colors, font sizes and weights, font families, line heights, border and icon stroke widths, corner radii, spacing and shadows are defined in `src/tokens.json`. Add new visual values to this file instead of hardcoding them in components or styles.
 
-Base tokens (`palette-*`, `font-*`, `space-*` and `radius-*`) define the palette and scales. Semantic `color-*` tokens reference them by purpose, for example `color-text`, `color-surface`, `color-border-control` and `color-error-text`. Shared borders and focus styles use `border-control`, `border-button`, `border-divider` and `outline-focus`. Changing one definition updates all components that use it.
+Base tokens (`palette-*`, `font-*`, `space-*` and `radius-*`) define the palette and scales. Labels and messages share `font-size-medium` (15px); block headings and PIN digits share `font-size-large` (18px). Semantic `color-*` tokens reference them by purpose, for example `color-text`, `color-surface`, `color-border-control` and `color-error-text`. Shared borders and focus styles use `border-control`, `border-button`, `border-divider` and `outline-focus`. Changing one definition updates all components that use it.
 
-In CSS, use declarations such as `color: var(--color-text)` and `font-size: var(--font-size-small)`. For React styles, use the type-checked `tokenVar('color-action-success')` helper from `src/design-tokens.ts`; CSS variables also support theme overrides. For canvas, QR codes and other APIs that require concrete values, import base tokens from `tokens.json`, for example `tokens['palette-green-400']`. Semantic tokens contain CSS references, so do not pass them directly to these APIs.
+In CSS, use declarations such as `color: var(--color-text)` and `font-size: var(--font-size-small)`. For React styles, use the type-checked `tokenVar('color-action-success')` helper from `src/design-tokens.ts`; CSS variables also support theme overrides. For canvas, QR codes and other APIs that require concrete values, import base tokens from `tokens.json`, for example `tokens['palette-blue-500']`. Semantic tokens contain CSS references, so do not pass them directly to these APIs.
 
 The Vite plugin in `design-tokens.plugin.ts` generates CSS variables from the tokens and expands named media queries. Breakpoints follow [Tailwind CSS defaults](https://tailwindcss.com/docs/responsive-design):
 

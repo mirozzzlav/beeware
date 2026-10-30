@@ -1,12 +1,7 @@
 import { browser } from '../../browser-api'
 import { useEffect, useState } from 'react'
 import { createDraft } from '../domains/domain-draft'
-import {
-  isExtension,
-  readLanguage,
-  readVisitSettings,
-  saveSettings,
-} from './settings-store'
+import { isExtension, readSettings, saveSettings } from './settings-store'
 import { useCloseTab } from '../visit/use-close-tab'
 import { asMessageError, MessageError, type Language } from '../language/i18n'
 import { useLanguage } from '../language/use-language'
@@ -37,10 +32,10 @@ export function useSettings() {
 
   useEffect(() => {
     let active = true
-    void Promise.all([readVisitSettings(), readLanguage()])
-      .then(([{ sites, ...settings }, language]) => {
+    void readSettings()
+      .then(({ sites, ...settings }) => {
         if (active) {
-          initialize({ ...settings, language, rows: sites.map(createDraft) })
+          initialize({ ...settings, rows: sites.map(createDraft) })
           setLoadStatus('ready')
         }
       })

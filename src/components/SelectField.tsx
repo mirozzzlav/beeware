@@ -1,4 +1,5 @@
-import { useId, type ComponentPropsWithoutRef } from 'react'
+import type { ComponentPropsWithoutRef } from 'react'
+import { useFieldControl } from './use-field-control'
 import FormField from './FormField'
 import Icon from './Icon'
 import type { ControlSize } from './control-size'
@@ -20,31 +21,23 @@ export default function SelectField({
   className = '',
   ...props
 }: SelectFieldProps) {
-  const generatedId = useId()
-  const inputId = id ?? generatedId
+  const control = useFieldControl({
+    id,
+    description,
+    describedBy: props['aria-describedby'],
+    className,
+    size,
+  })
   return (
     <FormField
       label={label}
       description={description}
-      htmlFor={inputId}
+      htmlFor={control.id}
       hideLabel={hideLabel}
       size={size}
     >
       <div className="select-control">
-        <select
-          id={inputId}
-          {...props}
-          className={`control ${className}`.trim()}
-          data-size={size}
-          aria-describedby={
-            [
-              props['aria-describedby'],
-              description ? `${inputId}-description` : undefined,
-            ]
-              .filter(Boolean)
-              .join(' ') || undefined
-          }
-        >
+        <select {...props} {...control}>
           {children}
         </select>
         <Icon name="chevronDown" className="select-control-icon" />

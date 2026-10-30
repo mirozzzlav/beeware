@@ -67,7 +67,12 @@ textarea::placeholder {
   color: var(--color-text-placeholder);
 }
 textarea:focus-visible,
-button:focus-visible {
+button:focus-visible,
+.text-field input:focus-visible,
+.text-field select:focus-visible,
+a:focus-visible,
+.switch-input:focus-visible,
+.tabs [role='tabpanel']:focus-visible {
   outline: var(--outline-focus);
   outline-offset: var(--border-width-focus);
 }
@@ -180,7 +185,7 @@ button:disabled {
   width: fit-content;
   max-width: 100%;
   gap: var(--space-4);
-  font-size: var(--font-size-message);
+  font-size: var(--font-size-medium);
   font-weight: var(--font-weight-semibold);
   text-align: left;
 }
@@ -254,10 +259,6 @@ button:disabled {
 .tabs-list button:focus-visible {
   outline-offset: calc(-1 * var(--border-width-focus));
 }
-.tabs [role='tabpanel']:focus-visible {
-  outline: var(--outline-focus);
-  outline-offset: var(--border-width-focus);
-}
 .block-heading,
 .block-content {
   min-width: 0;
@@ -316,7 +317,7 @@ button:disabled {
 .text-field label,
 .switch-field label {
   display: block;
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-medium);
   font-weight: var(--font-weight-semibold);
   margin-bottom: var(--space-6);
 }
@@ -344,12 +345,6 @@ button:disabled {
   color: inherit;
   box-shadow: var(--shadow-control);
   margin-bottom: 0;
-}
-.text-field input:focus-visible,
-.text-field select:focus-visible,
-a:focus-visible {
-  outline: var(--outline-focus);
-  outline-offset: var(--border-width-focus);
 }
 .select-control {
   position: relative;
@@ -388,10 +383,6 @@ a:focus-visible {
 }
 .switch-input:checked::before {
   justify-self: end;
-}
-.switch-input:focus-visible {
-  outline: var(--outline-focus);
-  outline-offset: var(--border-width-focus);
 }
 .switch-input:disabled {
   opacity: var(--opacity-disabled);
@@ -666,7 +657,7 @@ a {
 }
 .block-title {
   margin: 0 0 var(--space-12);
-  font-size: var(--font-size-block-heading);
+  font-size: var(--font-size-large);
   font-weight: var(--font-weight-semibold);
   text-align: left;
 }
@@ -724,7 +715,7 @@ a {
 .pin-keypad button {
   padding: var(--space-12) var(--space-8);
   min-height: calc(var(--size-pin-key) + var(--space-8));
-  font-size: var(--font-size-pin-digit);
+  font-size: var(--font-size-large);
 }
 .pin-keypad button:hover:not(:disabled) {
   background: var(--palette-blue-200);
