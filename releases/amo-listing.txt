@@ -7,7 +7,7 @@ Licencia: MIT License
 Verzia: 0.1.0
 Odporúčaná kategória: Other (Ostatné)
 Predvolený jazyk stránky: English (en-US)
-Voliteľná lokalizácia stránky: Slovenčina (sk)
+Slovenská lokalizácia stránky: Slovenčina (sk)
 Web a web podpory: nechaj prázdne, ak ich zatiaľ nemáš.
 
 ENGLISH — SUMMARY
@@ -25,18 +25,24 @@ Before visiting a selected domain, answer a short question in at least five word
 
 No account is required. To get started, open the extension settings and choose your domains and verification method. TOTP requires an external authenticator app. This is a tool for mindful browsing, not a security or parental-control system.
 
-SLOVENČINA — SÚHRN
-Zastav sa pred návštevou rušivých webov. Napíš svoj zámer a potvrď ho PIN-om alebo kódom z overovacej aplikácie. Vyber si domény a prehliadaj vedomejšie.
+SLOVENČINA (sk) — TEXTY PRE SLOVENSKÚ VERZIU STRÁNKY AMO
+Do polí kopíruj iba samotné texty bez nadpisov. Popisy screenshotov sú nižšie označené SK.
 
-SLOVENČINA — POPIS
-Otváraš web zo zvyku? Wake Up Neo ti dá chvíľu na rozhodnutie, prečo tam chceš ísť.
+SLOVENČINA — NÁZOV (Name)
+Wake Up Neo
 
-Pred návštevou vybranej domény odpovieš na krátku otázku aspoň piatimi slovami a pokračovanie potvrdíš PIN-om na premiešanej klávesnici alebo šesťmiestnym kódom z overovacej aplikácie. Namiesto pokračovania môžeš panel zavrieť.
+SLOVENČINA — SÚHRN (Summary)
+Krátka pauza pred návštevou rušivých webov. Napíš, čo tam chceš robiť, a pokračovanie potvrď PIN-om alebo kódom z overovacej aplikácie. Prehliadaj vedomejšie.
 
-- Vyber si domény, pred ktorými sa chceš zastaviť, vrátane ich subdomén.
-- Uprav si otázku alebo ju vypni a ponechaj iba overenie PIN/TOTP.
-- Prepínaj medzi slovenčinou a angličtinou.
-- Nastavenia zostávajú na tvojom zariadení. Odpovede sa neukladajú ani neposielajú na server.
+SLOVENČINA — POPIS (Description)
+Otváraš Facebook, YouTube či iný web zo zvyku? Wake Up Neo ti dá chvíľu na zamyslenie, prečo tam chceš ísť.
+
+Pred návštevou vybranej domény napíšeš odpoveď na krátku otázku aspoň piatimi slovami. Pokračovanie potvrdíš PIN-om na klávesnici, ktorej číslice sa pri každej návšteve premiešajú, alebo šesťmiestnym kódom z overovacej aplikácie. Ak sa rozhodneš nepokračovať, môžeš panel zavrieť.
+
+- Vyber si weby, pred ktorými sa chceš zastaviť. Pravidlo platí aj pre ich subdomény.
+- Nastav si vlastnú otázku alebo povinnú odpoveď vypni a používaj iba overenie PIN-om či TOTP kódom.
+- Používaj rozšírenie v slovenčine alebo angličtine.
+- Nastavenia zostávajú na tvojom zariadení. Tvoje odpovede sa neukladajú ani neposielajú na server.
 
 Účet nepotrebuješ. Na začiatok otvor nastavenia rozšírenia a vyber domény a spôsob overenia. TOTP vyžaduje externú overovaciu aplikáciu. Ide o pomôcku na vedomé prehliadanie, nie o bezpečnostný nástroj alebo rodičovskú kontrolu.
 
@@ -54,8 +60,8 @@ Pri každom screenshote vlož príslušný popis EN do anglickej verzie stránky
    SK: Potvrď svoj zámer šesťmiestnym kódom z overovacej aplikácie. Overenie TOTP môžeš používať namiesto PIN-u na klávesnici.
 
 3. screenshots/03-choose-domains.png
-   EN: Choose the websites where you want to pause, such as Facebook, YouTube or Reddit. Add or remove domains and give them your own display names. Subdomains are included too.
-   SK: Vyber si weby, pred ktorými sa chceš zastaviť, napríklad Facebook, YouTube alebo Reddit. Pridávaj či odstraňuj domény a nastav im vlastné zobrazované názvy. Pravidlo platí aj pre ich subdomény.
+   EN: Choose the websites where you want to pause, such as Facebook or YouTube. Add or remove domains and give them your own display names. Subdomains are included too.
+   SK: Vyber si weby, pred ktorými sa chceš zastaviť, napríklad Facebook alebo YouTube. Pridávaj či odstraňuj domény a nastav im vlastné zobrazované názvy. Pravidlo platí aj pre ich subdomény.
 
 4. screenshots/04-customize-question.png
    EN: Choose English or Slovak and write your own question to answer before visiting a website. Keep the answer requirement enabled for a moment of reflection, or turn it off to use only PIN or TOTP verification.
