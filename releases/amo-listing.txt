@@ -95,7 +95,7 @@ SÚBORY NA ODOSLANIE
 Rozšírenie: wakeup-0.2.0-firefox.zip
 Zdrojový kód pre review: wakeup-0.2.0-source.zip
 Chromium balík wakeup-0.2.0-chromium.zip sa na AMO neodosiela.
-Logo: icon-128x128.png (128 × 128 px, transparentné PNG)
+Logo: ../public/icon.png (cesta z priečinka releases/; 128 × 128 px, transparentné PNG)
 Screenshoty a tento text sa nahrávajú/používajú samostatne; nepridávaj ich do ZIP-u rozšírenia.
 
 Pokyny Mozilly: https://extensionworkshop.com/documentation/publish/submitting-an-add-on/
