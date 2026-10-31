@@ -57,9 +57,9 @@ npm run package
 
 `npm run package` runs a fresh production build and creates three archives in `releases/`, named using `name` and `version` from `package.json`:
 
-- `wakeup-0.1.0-chromium.zip`: the contents of `dist/chromium/`, with `manifest.json` at the archive root. Use this for Chrome and Brave / the Chrome Web Store.
-- `wakeup-0.1.0-firefox.zip`: the contents of `dist/firefox/`, with `manifest.json` at the archive root. Upload this to Mozilla Add-ons.
-- `wakeup-0.1.0-source.zip`: the matching source code, this README, lockfile, tests, scripts and build configuration. Attach this as the source code package for Mozilla reviewers.
+- `wakeup-0.2.0-chromium.zip`: the contents of `dist/chromium/`, with `manifest.json` at the archive root. Use this for Chrome and Brave / the Chrome Web Store.
+- `wakeup-0.2.0-firefox.zip`: the contents of `dist/firefox/`, with `manifest.json` at the archive root. Upload this to Mozilla Add-ons.
+- `wakeup-0.2.0-source.zip`: the matching source code, this README, lockfile, tests, scripts and build configuration. Attach this as the source code package for Mozilla reviewers.
 
 The command requires Node.js 24, installed npm dependencies (`npm ci --include=dev`) and the `zip` command. It replaces older ZIP files beginning with the current package name followed by `-` in `releases/` only after all three new archives have been created successfully. ZIP files elsewhere are left untouched. The source archive excludes dependencies, build output, release archives, Git and IDE metadata, environment files and logs. The `releases/` directory is ignored by Git.
 
@@ -141,7 +141,7 @@ After changing the code, run `npm run build` and click **Reload** for the extens
 
 The Chromium manifest contains no `background.scripts` or Firefox-specific keys, so it avoids those manifest warnings. Both targets declare the developer name with `author`. If you previously loaded the universal `dist/` directory, disable that old development installation and load `dist/chromium/` instead; the extension ID may change because the unpacked directory changed, and existing local settings will belong to the old installation.
 
-Use `wakeup-0.1.0-chromium.zip` for the Chrome Web Store and `wakeup-0.1.0-firefox.zip` for Mozilla Add-ons. Firefox users install the signed XPI produced by Mozilla; Chrome and Brave users can install through the Chrome Web Store.
+Use `wakeup-0.2.0-chromium.zip` for the Chrome Web Store and `wakeup-0.2.0-firefox.zip` for Mozilla Add-ons. Firefox users install the signed XPI produced by Mozilla; Chrome and Brave users can install through the Chrome Web Store.
 
 ## Checks and formatting
 
