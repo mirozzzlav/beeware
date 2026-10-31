@@ -4,7 +4,7 @@ Názov: Wake Up Neo
 Autor: Miro Furinda
 E-mail podpory: info@mirofurinda.com
 Licencia: MIT License
-Verzia: 0.1.0
+Verzia: 0.2.0
 Odporúčaná kategória: Other (Ostatné)
 Predvolený jazyk stránky: English (en-US)
 Slovenská lokalizácia stránky: Slovenčina (sk)
@@ -48,7 +48,7 @@ Pred návštevou vybranej domény napíšeš odpoveď na krátku otázku aspoň 
 
 SCREENSHOTY — NAHRAJ V TOMTO PORADÍ
 Skutočné zábery z Firefoxu, 1280 × 800 px, anglické rozhranie.
-Vytvorené z publikačného ZIP-u v samostatnom dočasnom profile s ukážkovými údajmi.
+Vytvorené z wakeup-0.2.0-firefox.zip v samostatnom dočasnom profile Firefoxu s ukážkovými údajmi.
 Pri každom screenshote vlož príslušný popis EN do anglickej verzie stránky a SK do slovenskej.
 
 1. screenshots/01-pause-with-pin.png
@@ -67,12 +67,32 @@ Pri každom screenshote vlož príslušný popis EN do anglickej verzie stránky
    EN: Choose English or Slovak and write your own question to answer before visiting a website. Keep the answer requirement enabled for a moment of reflection, or turn it off to use only PIN or TOTP verification.
    SK: Vyber si angličtinu alebo slovenčinu a napíš vlastnú otázku pred návštevou webu. Povinnú odpoveď ponechaj zapnutú pre chvíľu na zamyslenie alebo ju vypni a používaj iba overenie PIN-om či TOTP kódom.
 
+RELEASE NOTES — ENGLISH (0.2.0)
+- Added Chromium support with separate Firefox and Chrome/Brave builds.
+- Reworked navigation interception to use declarative request rules.
+- Refactored shared form controls and settings loading, and refined the settings and visit prompt layout.
+- Unified the extension and page icons.
+
+POZNÁMKY K VERZII — SLOVENČINA (0.2.0)
+- Pridaná podpora Chromium so samostatnými zostaveniami pre Firefox a Chrome/Brave.
+- Presmerovanie návštev teraz používa deklaratívne pravidlá požiadaviek.
+- Refaktorované spoločné formulárové prvky a načítavanie nastavení, upravené rozloženie nastavení a výzvy pred návštevou.
+- Zjednotené ikony rozšírenia a stránok.
+
 NOTES FOR REVIEWERS — SKOPÍRUJ DO SAMOSTATNÉHO POĽA
-Build and testing instructions are included in README.md in the source archive. Use Node.js 24.19.0 and npm 11.17.0, then run npm ci --include=dev and npm run build. A clean build from this source archive was verified to match the submitted extension files byte for byte. No account is required. The default verification method is PIN (initial PIN: 1234); it can be changed in settings. TOTP is also available and requires an external authenticator app. Processing and storage happen locally; the extension does not transmit user data.
+Changes in version 0.2.0:
+- Added Chromium support in the shared codebase, using webextension-polyfill 0.12.0 and separate browser manifests. The AMO package contains only the Firefox build (background.scripts); the Chromium build uses background.service_worker and is distributed separately.
+- Replaced webRequest/webRequestBlocking navigation interception with declarativeNetRequestWithHostAccess redirect rules for main-frame requests to configured domains. webNavigation remains in use for navigation handling, and storage is used for local settings. Additional domain access is requested through optional host permissions when configuring domains.
+- Refactored shared form controls and settings reads, refined layout and design tokens, and unified branding around one PNG icon.
+
+Build and testing instructions are included in README.md in the source archive. Use Node.js 24.19.0 and npm 11.17.0, then run npm ci --include=dev and npm run build. The Firefox build is generated in dist/firefox/; compare that directory with the submitted Firefox ZIP. npm run build also generates a separate Chromium build in dist/chromium/, which is not part of the AMO extension package. The polyfill dependency version and registry source are recorded in package-lock.json, and its license is bundled in the extension.
+
+No account is required. The default verification method is PIN (initial PIN: 1234); it can be changed in settings. To test, visit facebook.com, enter an answer of at least five words and confirm with the initial PIN, or close the tab. TOTP is also available and requires an external authenticator app. Processing and storage happen locally; the extension does not transmit user data.
 
 SÚBORY NA ODOSLANIE
-Rozšírenie: wakeup-0.1.0.zip
-Zdrojový kód pre review: wakeup-0.1.0-source.zip
+Rozšírenie: wakeup-0.2.0-firefox.zip
+Zdrojový kód pre review: wakeup-0.2.0-source.zip
+Chromium balík wakeup-0.2.0-chromium.zip sa na AMO neodosiela.
 Logo: icon-128x128.png (128 × 128 px, transparentné PNG)
 Screenshoty a tento text sa nahrávajú/používajú samostatne; nepridávaj ich do ZIP-u rozšírenia.
 
