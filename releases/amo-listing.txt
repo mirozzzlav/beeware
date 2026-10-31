@@ -87,6 +87,8 @@ Changes in version 0.2.0:
 
 Build and testing instructions are included in README.md in the source archive. Use Node.js 24.19.0 and npm 11.17.0, then run npm ci --include=dev and npm run build. The Firefox build is generated in dist/firefox/; compare that directory with the submitted Firefox ZIP. npm run build also generates a separate Chromium build in dist/chromium/, which is not part of the AMO extension package. The polyfill dependency version and registry source are recorded in package-lock.json, and its license is bundled in the extension.
 
+Validation warnings: The two "Unsafe assignment to innerHTML" warnings in assets/main-pSVCpxJe.js (line 9, columns 1781 and 4696) originate from the bundled React DOM 19.3.1 production renderer, specifically its internal handling of dangerouslySetInnerHTML. The extension's application source does not use innerHTML or dangerouslySetInnerHTML. User-provided values are rendered as React text children or form field values, not injected as HTML. React DOM's exact dependency version and registry source are recorded in package-lock.json.
+
 No account is required. The default verification method is PIN (initial PIN: 1234); it can be changed in settings. To test, visit facebook.com, enter an answer of at least five words and confirm with the initial PIN, or close the tab. TOTP is also available and requires an external authenticator app. Processing and storage happen locally; the extension does not transmit user data.
 
 SÚBORY NA ODOSLANIE
